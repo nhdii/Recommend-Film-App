@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 var {width, height} = Dimensions.get('window')
 
 
-export default function MovieList(title, data) {
+export default function MovieList({title, data}) {
     let movieName = 'Ant-Man and the Wasp: Quantumania';
     const navigation = useNavigation();
   return (
@@ -44,10 +44,11 @@ export default function MovieList(title, data) {
                                         height: height*0.22
                                     }}
                                 />
+                                <Text className="text-neutral-300 ml-l">
+                                    {movieName.length > 14? movieName.slice(0,14) + '...' : movieName}
+                                </Text>
                             </View>
-                            <Text className="text-neutral-300 ml-l">
-                                {movieName}
-                            </Text>
+                            
                         </TouchableWithoutFeedback>
                     )
                 })

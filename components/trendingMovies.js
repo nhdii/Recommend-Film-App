@@ -4,9 +4,10 @@ import Carousel from 'react-native-snap-carousel';
 import { useNavigation } from '@react-navigation/native';
 
 var {width, height} = Dimensions.get('window')
+
 export default function TrendingMovie({data}) {
   const navigation = useNavigation(); 
-  const handleClick = ()=>{
+  const handleClick = (item)=>{
     navigation.navigate('Movie', item)
   }
   return (
@@ -27,7 +28,7 @@ export default function TrendingMovie({data}) {
 
 const MovieCart = ({item, handleClick})=> {
   return (
-    <TouchableWithoutFeedback onPress={handleClick}>
+    <TouchableWithoutFeedback onPress={()=> handleClick(item)}>
       <Image 
         source={require('../assets/images/moviePoster1.png')}
         style={{

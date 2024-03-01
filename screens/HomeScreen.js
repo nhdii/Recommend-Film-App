@@ -17,7 +17,8 @@ export default function HomeScreen(){
     return (
         <View className="flex-1 bg-neutral-800">
             {/* Search bar and Logo */}
-            <SafeAreaView className={ios? "-mb-2" : '-mb-3 mt-10'}>
+            {/* <SafeAreaView className={ios? "-mb-2" : '-mb-3 mt-10'}> */}
+            <SafeAreaView className={'mb-2 mt-10'}>
                 <StatusBar style="light"/>
                 <View className="flex-row justify-between items-center mx-4">
                     <Bars3CenterLeftIcon size="30" strokeWidth={2} color="white" />
@@ -38,7 +39,11 @@ export default function HomeScreen(){
                 {/* Trending Movie */}
                 <TrendingMovie data={trending} />
 
+                {/* Upcoming movie */}
                 <MovieList title="Upcoming" data={upcoming} />
+
+                {/* Top rate movie */}
+                <MovieList title="Top Rated" data={topRate} />
 
             </ScrollView>
         </View>
