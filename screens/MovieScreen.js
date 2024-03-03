@@ -6,6 +6,8 @@ import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import {HeartIcon } from 'react-native-heroicons/solid';
 import { styles, theme } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient';
+import Cast from '../components/cast';
+import MovieList from '../components/movieList';
 
 var {width, height} = Dimensions.get('window')
 // const ios = Platform.OS == 'ios';
@@ -15,7 +17,10 @@ export default function MovieScreen() {
     const {param: item} = useRoute();
     const [isFavourite, toggleFavourite] = useState(false);
     const navigation = useNavigation();
+    const [cast, setCast] = useState([1, 2, 3, 4, 5]);
+    const [similarMovies, setSimilarMovies] = useState([1, 2, 3, 4, 5]);
     let movieName = "Ant-Man and the Wasp: Quantumania"
+    const [loading, setLoading] = useState(false);
 
     useEffect(()=> {
 
@@ -27,6 +32,7 @@ export default function MovieScreen() {
         className="flex-1 bg-neutral-900"
     >
         <View className="w-full">
+            {/* back button */}
             <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center px-4 mt-3"} >
                 <TouchableOpacity onPress={()=> navigation.goBack()} style={styles.background} className="rounded-xl p-1">
                     <ChevronLeftIcon size="28" strokeWidth={2.5} color="white"/>
@@ -37,19 +43,28 @@ export default function MovieScreen() {
                 </TouchableOpacity>
             </SafeAreaView>
 
-            <View>
-                <Image 
-                    source={require('../assets/images/moviePoster1.png')}
-                    style={{width, height: height*0.55}}
-                />
-                <LinearGradient
-                    colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
-                    style={{width, height: height*0.40}}
-                    start={{x: 0.5, y: 0}}
-                    end={{x: 0.5, y: 1}}
-                    className="absolute bottom-0"
-                />
-            </View>
+            {
+                loading ?(
+                    <Loading />
+
+                ):(
+                    <View>
+                        <Image 
+                            source={require('../assets/images/moviePoster1.png')}
+                            style={{width, height: height*0.55}}
+                        />
+                        <LinearGradient
+                            colors={['transparent', 'rgba(23,23,23,0.8)', 'rgba(23,23,23,1)']}
+                            style={{width, height: height*0.40}}
+                            start={{x: 0.5, y: 0}}
+                            end={{x: 0.5, y: 1}}
+                            className="absolute bottom-0"
+                        />
+                    </View>
+                )
+            }
+
+            
         </View>
 
         {/* movie detail */}
@@ -85,8 +100,10 @@ export default function MovieScreen() {
         </View>
 
         {/* cast */}
+        <Cast navigation={navigation} cast={cast} />
         
-        
+        {/* similar movies */}
+        <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />
 
     </ScrollView>
   )
