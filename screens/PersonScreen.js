@@ -9,7 +9,7 @@ import Loading from '../components/loading';
 
 var {width, height} = Dimensions.get('window')
 const ios = Platform.OS == 'ios';
-const verticalMargin = ios? '': ' my-4'
+const verticalMargin = ios? '': ' my-3'
 
 export default function PersonScreen() {
     const navigation = useNavigation();
@@ -43,7 +43,9 @@ export default function PersonScreen() {
                             shadowColor: 'gray',
                             shadowRadius: 40,
                             shadowOffset: {width: 0, height: 5},
-                            shadowOpacity: 1
+                            shadowOpacity: 1,
+                            elevation: 5
+
                         }}
                     >
                         <View className="items-center rounded-full overflow-hidden h-72 w-72 border-2 border-neutral-500">
@@ -63,18 +65,18 @@ export default function PersonScreen() {
                         </Text>
                     </View>
 
-                    <View className="mx-3 p-4 mt-6 flex-row justify-between items-center bg-neutral-700 rounded-full">
-                        <View className="border-r-2 border-r-neutral-400 px-2 items-center">
+                    <View className="mx-2 p-4 mt-6 flex-row justify-between items-center bg-neutral-700 rounded-full">
+                        <View className="border-r-2 border-r-neutral-400 px-1 items-center">
                             <Text className="text-white font-semibold">Gender</Text>
                             <Text className="text-sm text-neutral-300">Male</Text>
                         </View>
 
-                        <View className="border-r-2 border-r-neutral-400 px-2 items-center">
+                        <View className="border-r-2 border-r-neutral-400 px-1 items-center">
                             <Text className="text-white font-semibold">Birthday</Text>
                             <Text className="text-sm text-neutral-300">1964-09-02</Text>
                         </View>
 
-                        <View className="border-r-2 border-r-neutral-400 px-2 items-center">
+                        <View className="border-r-2 border-r-neutral-400 px-1 items-center">
                             <Text className="text-white font-semibold">Know for</Text>
                             <Text className="text-sm text-neutral-300">Acting</Text>
                         </View>

@@ -39,7 +39,7 @@ export default function SearchScreen() {
             results.length>0? (
                 <ScrollView 
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{paddingHorizontal: 15}}
+                    contentContainerStyle={{paddingHorizontal: 10}}
                     className="space-y-3"
                     >
                         <Text className="text-white font-semibold ml-1">Results ({results.length})</Text>
@@ -58,7 +58,7 @@ export default function SearchScreen() {
                                                 />
                                                 <Text className="text-neutral-300 ml-1">
                                                     {
-                                                        movieName.length>22? movieName.slice(0,22)+'...':movieName
+                                                        movieName.length>22? movieName.slice(0,18)+'...':movieName
                                                     }
                                                 </Text>
                                             </View>
