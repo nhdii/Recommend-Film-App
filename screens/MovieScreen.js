@@ -8,13 +8,15 @@ import { styles, theme } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import Cast from '../components/cast';
 import MovieList from '../components/movieList';
+import { fetchMovieDetails } from '../api/moviedb';
+import Loading from '../components/loading';
 
 var {width, height} = Dimensions.get('window')
 // const ios = Platform.OS == 'ios';
 // const topMargin = ios? '': ' mt-3';
 
 export default function MovieScreen() {
-    const {param: item} = useRoute();
+    const {params: item} = useRoute();
     const [isFavourite, toggleFavourite] = useState(false);
     const navigation = useNavigation();
     const [cast, setCast] = useState([1, 2, 3, 4, 5]);
@@ -23,8 +25,16 @@ export default function MovieScreen() {
     const [loading, setLoading] = useState(false);
 
     useEffect(()=> {
-
+        console.log('itemId: ', item.id);
+        setLoading(true);
+        getMovieDetails(item.id);
     },[item])
+
+    const getMovieDetails = async id=>{
+        const data = await fetchMovieDetails(id);
+        console.log('got movie details: ', data);
+        setLoading(false);
+    }
 
   return (
     <ScrollView
@@ -103,7 +113,7 @@ export default function MovieScreen() {
         <Cast navigation={navigation} cast={cast} />
         
         {/* similar movies */}
-        <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />
+        {/* <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} /> */}
 
     </ScrollView>
   )
