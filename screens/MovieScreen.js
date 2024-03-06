@@ -8,7 +8,7 @@ import { styles, theme } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import Cast from '../components/cast';
 import MovieList from '../components/movieList';
-import { fetchMovieDetails } from '../api/moviedb';
+import { fetchMovieCredits, fetchMovieDetails, fetchMovieSimilar, image500 } from '../api/moviedb';
 import Loading from '../components/loading';
 
 var {width, height} = Dimensions.get('window')
@@ -19,21 +19,38 @@ export default function MovieScreen() {
     const {params: item} = useRoute();
     const [isFavourite, toggleFavourite] = useState(false);
     const navigation = useNavigation();
-    const [cast, setCast] = useState([1, 2, 3, 4, 5]);
-    const [similarMovies, setSimilarMovies] = useState([1, 2, 3, 4, 5]);
-    let movieName = "Ant-Man and the Wasp: Quantumania"
+    const [cast, setCast] = useState([]);
+    const [similarMovies, setSimilarMovies] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [movie, setMovie]= useState({});
+    let movieName = "Ant-Man and the Wasp: Quantumania"
 
     useEffect(()=> {
-        console.log('itemId: ', item.id);
+        // console.log('itemId: ', item.id);
         setLoading(true);
         getMovieDetails(item.id);
+        getMovieCredits(item.id);
+        getSimilarMovie(item.id);
     },[item])
 
     const getMovieDetails = async id=>{
         const data = await fetchMovieDetails(id);
-        console.log('got movie details: ', data);
+        // console.log('got movie details: ', data);
+        if(data) setMovie(data);
         setLoading(false);
+    }
+
+    const getMovieCredits = async id=>{
+        const data = await fetchMovieCredits(id);
+        // console.log('got movie credits: ', data);
+        if(data && data.cast) setCast(data.cast);
+        // setLoading(false);
+    }
+
+    const getSimilarMovie = async id=>{
+        const data = await fetchMovieSimilar(id);
+        // console.log('got similar movie: ', data);
+        if(data && data.results) setSimilarMovies(data.results);
     }
 
   return (
@@ -60,7 +77,8 @@ export default function MovieScreen() {
                 ):(
                     <View>
                         <Image 
-                            source={require('../assets/images/moviePoster1.png')}
+                            // source={require('../assets/images/moviePoster1.png')}
+                            source={{ uri: image500(movie?.poster_path)}}
                             style={{width, height: height*0.55}}
                         />
                         <LinearGradient
@@ -81,39 +99,44 @@ export default function MovieScreen() {
         <View style={{marginTop: -(height*0.09)}} className="space-y-3">
             {/* title */}
             <Text className="text-white text-center text-3xl font-bold tracking-wider">
-                {movieName}
+                {movie?.title}
             </Text>
             {/* status, release, runtime */}
-            <Text className="text-neutral-400 font-semibold text-base text-center">
-                Release . 2020 . 170 min
-            </Text>
+            {
+                movie?.id?(
+                    <Text className="text-neutral-400 font-semibold text-base text-center">
+                        {movie?.status} • {movie?.release_date?.split('-')[0]} • {movie?.runtime} min
+                    </Text>
+                ): null
+            }
+            
 
             {/* genres */}
             <View className="flex-row justify-center mx-4 space-x-2">
-                <Text className="text-neutral-400 font-semibold text-base text-center">
-                    Action . 
-                </Text>
-                <Text className="text-neutral-400 font-semibold text-base text-center">
-                    Thrill . 
-                </Text>
-                <Text className="text-neutral-400 font-semibold text-base text-center">
-                    Comedy 
-                </Text>
+                {
+                    movie?.genres?.map((genres, index)=>{
+                        let showDot = index+1 != movie.genres.length;
+                        return (
+                            <Text key={index} className="text-neutral-400 font-semibold text-base text-center">
+                                {genres?.name} {showDot? "•" : null}
+                            </Text>
+                        )
+                    })
+                }
+                
             </View>
 
             {/* description */}
             <Text className="text-neutral-400 mx-4 tracking-wide">
-                Super-Hero partners Scott Lang and Hope van Dyne, Along with Hope's parents
-                Super-Hero partners Scott Lang and Hope van Dyne, Along with Hope's parents
-                Super-Hero partners Scott Lang and Hope van Dyne, Along with Hope's parents
+                {movie?.overview}
             </Text>
         </View>
 
         {/* cast */}
-        <Cast navigation={navigation} cast={cast} />
+        {cast.length>0 && <Cast navigation={navigation} cast={cast} />}
         
         {/* similar movies */}
-        {/* <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} /> */}
+        {similarMovies.length>0 && <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />}
 
     </ScrollView>
   )
