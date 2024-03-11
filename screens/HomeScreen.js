@@ -8,6 +8,7 @@ import MovieList from "../components/movieList";
 import { useNavigation } from "@react-navigation/native";
 import Loading from "../components/loading";
 import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies } from "../api/moviedb";
+import { DrawerActions } from '@react-navigation/native';
 
 const ios = Platform.OS == 'ios';
 
@@ -55,7 +56,9 @@ export default function HomeScreen(){
             <SafeAreaView className={'mb-2 mt-10'}>
                 <StatusBar style="light"/>
                 <View className="flex-row justify-between items-center mx-4">
-                    <Bars3CenterLeftIcon size="30" strokeWidth={2} color="white" />
+                    <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
+                        <Bars3CenterLeftIcon size="30" strokeWidth={2} color="white" />
+                    </TouchableOpacity>
                     <Text className="text-white text-3xl font-bold">
                         <Text style={styles.text}>M</Text>ovies
                     </Text>
