@@ -13,7 +13,6 @@ export default function SearchScreen() {
     const navigation = useNavigation();
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
-    let movieName = 'Ant-Man and the Wasp: Quantumania';
     const handleSearch = value =>{
         if(value && value.length>2){
             setLoading(true);
@@ -97,7 +96,7 @@ export default function SearchScreen() {
                 <View className="flex-row justify-between">
                     <Image 
                         source={require('../assets/images/movieTime.png')}
-                        className="h-96 w-96"
+                        className="h-64 w-96"
                     />
                 </View>
             )
