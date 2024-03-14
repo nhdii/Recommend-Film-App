@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { KeyIcon, EnvelopeIcon, ArrowLeftIcon } from 'react-native-heroicons/outline';
+import { KeyIcon, EnvelopeIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../theme';
-import { ScrollView } from 'react-native-gesture-handler';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
@@ -13,6 +12,8 @@ export default function LoginScreen() {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
 
     const handleLogin = async() => {
         if(email && password){
@@ -20,8 +21,15 @@ export default function LoginScreen() {
                 await signInWithEmailAndPassword(auth, email, password);
             }catch(err){
                 console.log('got error: ', err.message);
+                if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password'){
+                    setError('Invalid email or password');
+                }
             }
         }
+    };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
     };
 
     const handleLoginWithGoogle = () => {
@@ -50,14 +58,14 @@ export default function LoginScreen() {
                     </Text>
 
                 </View>
-                <View className="flex-row justify-center items-center m-6">
+                <View className="flex-row justify-center items-center m-4">
                     <Text className="text-white text-xl font-bold justify-center items-center">
                         Login your account
                     </Text>
 
                 </View>
             </View>
-            <View className="px-4 mt-6">
+            <View className="px-4 mt-4">
                 <Text className="text-white font-semibold pb-2">Email</Text>
                 <View className="bg-neutral-700 text-white px-4 py-2 rounded-lg flex-row items-center mb-4"> 
                     <EnvelopeIcon size="24" color="gray"/>
@@ -78,15 +86,21 @@ export default function LoginScreen() {
                         onChangeText={value => setPassword(value)}
                         placeholder="Password"
                         placeholderTextColor="gray"
-                        secureTextEntry={true}
+                        secureTextEntry={!showPassword}
                         className="flex-1 ml-4 text-white"
                     />
+                    <TouchableOpacity onPress={togglePasswordVisibility}>
+                        {showPassword ? <EyeSlashIcon size="24" color="gray" /> : <EyeIcon size="24" color="gray" />}
+                    </TouchableOpacity>
                 </View>
+
+                {/* error message */}
+                <Text className="text-red-700 text-center">{error}</Text>
 
                 <TouchableOpacity>
                     <Text className="text-right text-white font-semibold">Forgot your password?</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleLogin} style={styles.backgroundButton} className="px-4 py-3 rounded-lg mt-10 mb-6">
+                <TouchableOpacity onPress={handleLogin} style={styles.backgroundButton} className="px-4 py-3 rounded-lg mt-6 mb-6">
                     <Text className="text-white text-center text-lg font-semibold">Log in</Text>
                 </TouchableOpacity>
                 <Text className="text-white text-center text-md font-semibold mb-6 ">Or Log in with </Text>

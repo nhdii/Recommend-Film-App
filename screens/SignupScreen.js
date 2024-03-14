@@ -1,28 +1,58 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { KeyIcon, EnvelopeIcon, UserIcon, ArrowLeftIcon } from 'react-native-heroicons/outline';
+import { KeyIcon, EnvelopeIcon, UserIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../theme';
-import { ScrollView } from 'react-native-gesture-handler';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import LoginScreen from './LoginScreen';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
 export default function SignUpScreen() {
     const navigation = useNavigation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState('');
+
+    const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
 
     const handleSignUp = async() => {
-        if(email && password){
+
+        if(!validateEmail(email)){
+            setError("Invalid email format");
+            return;
+        }
+        
+        if(email && password && confirmPassword){
+            if(password != confirmPassword){
+                setError("Passwords do not match");
+                return;
+            }
             try{
                 await createUserWithEmailAndPassword(auth, email, password);
+                await signInWithEmailAndPassword(auth, email, password);
             }catch(err){
-                console.log('got error: ', err.message);
+                if(err.code === 'auth/email-already-in-use'){
+                    setError('Email is already registered');
+                }else{
+                    console.log('got error: ', err.message);
+                }
+                
             }
         }
     };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+
 
     return (
         <View className="flex-1 bg-neutral-800 pt-6">
@@ -69,21 +99,32 @@ export default function SignUpScreen() {
                         onChangeText={value => setPassword(value)}
                         placeholder="Password"
                         placeholderTextColor="gray"
-                        secureTextEntry={true}
+                        secureTextEntry={!showPassword}
                         className="flex-1 ml-4 text-white"
                     />
+                    <TouchableOpacity onPress={togglePasswordVisibility}>
+                        {showPassword ? <EyeSlashIcon size="24" color="gray" /> : <EyeIcon size="24" color="gray" />}
+                    </TouchableOpacity>
                 </View>
 
                 <Text className="text-white font-semibold pb-2">Confirm Password</Text>
                 <View className="bg-neutral-700 text-white px-4 py-2 rounded-lg flex-row items-center mb-4">
                     <KeyIcon size={24} color="gray" />
                     <TextInput
+                        value={confirmPassword}
+                        onChangeText={value => setConfirmPassword(value)}
                         placeholder="Confirm Password"
                         placeholderTextColor="gray"
-                        secureTextEntry={true}
+                        secureTextEntry={!showConfirmPassword}
                         className="flex-1 ml-4 text-white"
                     />
+                    <TouchableOpacity onPress={toggleConfirmPasswordVisibility}>
+                        {showConfirmPassword ? <EyeSlashIcon size="24" color="gray" /> : <EyeIcon size="24" color="gray" />}
+                    </TouchableOpacity>
                 </View>
+
+                <Text className="text-red-700 text-center">{error}</Text>
+
                 <TouchableOpacity onPress={handleSignUp} style={styles.backgroundButton} className="px-4 py-3 rounded-lg mt-6 mb-6">
                     <Text className="text-white text-center text-lg font-semibold">Sign Up</Text>
                 </TouchableOpacity>
