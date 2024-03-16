@@ -23,7 +23,7 @@ export const image500 = path => path? `https://image.tmdb.org/t/p/w500${path}` :
 export const image342 = path => path? `https://image.tmdb.org/t/p/w342${path}` : null;
 export const image185= path => path? `https://image.tmdb.org/t/p/w185${path}` : null;
 
-export const fallBackMoviePoster = 'https://th.bing.com/th/id/OIP.MKJT1tGZDqcVT_KbFg3jNgHaHa?rs=1&pid=ImgDetMain';
+export const fallBackPersonPoster = 'https://th.bing.com/th/id/OIP.MKJT1tGZDqcVT_KbFg3jNgHaHa?rs=1&pid=ImgDetMain';
 
 const apiCall = async (endpoint, params)=>{
     const options = {

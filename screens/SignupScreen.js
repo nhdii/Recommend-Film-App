@@ -5,15 +5,20 @@ import { useNavigation } from '@react-navigation/native';
 import { styles } from '../theme';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import { addDoc, collection, getFirestore, query, where, getDocs} from 'firebase/firestore';
+import bcrypt from 'react-native-bcrypt'
 
 export default function SignUpScreen() {
     const navigation = useNavigation();
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
+
+    const firestore = getFirestore();
 
     const validateEmail = (email) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -33,8 +38,31 @@ export default function SignUpScreen() {
                 return;
             }
             try{
+
+                const saltRound = 10;
+                const hashedPassword = await bcrypt.hashSync(password, saltRound); // Hash mật khẩu
+                
                 await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Thêm thông tin người dùng vào Firestore
+                const firestore = getFirestore();
+                const userRef = collection(firestore, 'users');
+                const newUserDoc = await addDoc(userRef, {
+                    fullName: fullName,
+                    email: email,
+                    password: hashedPassword,
+                    createdAt: new Date().toISOString()
+                });
+                // await addDoc(collection(firestore, 'users'), {
+                //     fullName: fullName, // Thêm fullName vào state nếu đã có
+                //     email: email,
+                //     password: hashedPassword,
+                //     createdAt: new Date().toISOString()
+                // });
+
                 await signInWithEmailAndPassword(auth, email, password);
+                // Chuyển hướng đến trang Home
+                navigation.navigate('Home');
             }catch(err){
                 if(err.code === 'auth/email-already-in-use'){
                     setError('Email is already registered');
@@ -73,6 +101,8 @@ export default function SignUpScreen() {
                 <View className="bg-neutral-700 text-white px-4 py-2 rounded-lg flex-row items-center mb-4">
                     <UserIcon size={24} color="gray" />
                     <TextInput
+                        value={fullName}
+                        onChangeText={value => setFullName(value)}
                         placeholder="FullName"
                         placeholderTextColor="gray"
                         className="flex-1 ml-4 text-white"

@@ -10,6 +10,7 @@ import Cast from '../components/cast';
 import MovieList from '../components/movieList';
 import { fetchMovieCredits, fetchMovieDetails, fetchMovieSimilar, image500 } from '../api/moviedb';
 import Loading from '../components/loading';
+import Director from '../components/director';
 
 var {width, height} = Dimensions.get('window')
 // const ios = Platform.OS == 'ios';
@@ -20,10 +21,10 @@ export default function MovieScreen() {
     const [isFavourite, toggleFavourite] = useState(false);
     const navigation = useNavigation();
     const [cast, setCast] = useState([]);
+    const [director, setDirector] = useState([]);
     const [similarMovies, setSimilarMovies] = useState([]);
     const [loading, setLoading] = useState(false);
     const [movie, setMovie]= useState({});
-    let movieName = "Ant-Man and the Wasp: Quantumania"
 
     useEffect(()=> {
         // console.log('itemId: ', item.id);
@@ -42,8 +43,16 @@ export default function MovieScreen() {
 
     const getMovieCredits = async id=>{
         const data = await fetchMovieCredits(id);
-        // console.log('got movie credits: ', data);
+        // console.log('got movie credits: ', data.cast);
         if(data && data.cast) setCast(data.cast);
+
+        console.log('got movie credits: ', data.crew.find(member => member.job === 'Director'));
+        if(data && data.crew){
+            const directorData = data.crew.find(member => member.job === 'Director');
+            if (directorData) {
+                setDirector(directorData);
+            }
+        }
         // setLoading(false);
     }
 
@@ -131,6 +140,9 @@ export default function MovieScreen() {
                 {movie?.overview}
             </Text>
         </View>
+
+        {/* director  */}
+        {director && Object.keys(director).length > 0 && <Director navigation={navigation} director={director}/>}
 
         {/* cast */}
         {cast.length>0 && <Cast navigation={navigation} cast={cast} />}

@@ -6,7 +6,7 @@ import { ChevronLeftIcon, HeartIcon } from 'react-native-heroicons/solid';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import MovieList from '../components/movieList';
 import Loading from '../components/loading';
-import { fallBackMoviePoster, fetchPersonDetails, fetchPersonMovies, image342 } from '../api/moviedb';
+import { fallBackPersonPoster, fetchPersonDetails, fetchPersonMovies, image342 } from '../api/moviedb';
 
 var {width, height} = Dimensions.get('window')
 const ios = Platform.OS == 'ios';
@@ -74,7 +74,7 @@ export default function PersonScreen() {
                         <View className="items-center rounded-full overflow-hidden h-72 w-72 border-2 border-neutral-500">
                             <Image 
                                 // source={require('../assets/images/castImage1.png')}
-                                source={{uri: image342(person?.profile_path) || fallBackMoviePoster}}
+                                source={{uri: image342(person?.profile_path) || fallBackPersonPoster}}
                                 style={{height: height*0.43, width: width*0.74}}
                             />
                         </View>

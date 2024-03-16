@@ -1,10 +1,8 @@
 import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
-import { fallBackMoviePoster, image185 } from '../api/moviedb';
+import { fallBackPersonPoster, image185 } from '../api/moviedb';
 
 export default function Cast({cast, navigation}) {
-    let personName = 'Keanu Reevs';
-    let characterName = 'John Wick'
   return (
     <View className="my-6">
       <Text className="text-white text-lg mx-4 mb-5">Top Cast</Text>
@@ -25,7 +23,7 @@ export default function Cast({cast, navigation}) {
                                 <Image 
                                     className="rounded-2xl h-24 w-20"
                                     // source={require('../assets/images/castImage1.png')}
-                                    source={{ uri: image185(person?.profile_path) || fallBackMoviePoster}}
+                                    source={{ uri: image185(person?.profile_path) || fallBackPersonPoster}}
                                 />
                             </View>
                             
