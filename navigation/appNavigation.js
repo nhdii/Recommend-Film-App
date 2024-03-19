@@ -87,6 +87,8 @@ export default function AppNavigation(){
     useEffect(() => {
         if(user){
             setLoggedInUser(user);
+        }else{
+            setLoggedInUser(null);
         }
     }, [user]);
 

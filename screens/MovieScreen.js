@@ -46,7 +46,7 @@ export default function MovieScreen() {
         // console.log('got movie credits: ', data.cast);
         if(data && data.cast) setCast(data.cast);
 
-        console.log('got movie credits: ', data.crew.find(member => member.job === 'Director'));
+        // console.log('got movie credits: ', data.crew.find(member => member.job === 'Director'));
         if(data && data.crew){
             const directorData = data.crew.find(member => member.job === 'Director');
             if (directorData) {
@@ -122,16 +122,18 @@ export default function MovieScreen() {
 
             {/* genres */}
             <View className="flex-row justify-center mx-4 space-x-2">
-                {
-                    movie?.genres?.map((genres, index)=>{
-                        let showDot = index+1 != movie.genres.length;
-                        return (
-                            <Text key={index} className="text-neutral-400 font-semibold text-base text-center">
-                                {genres?.name} {showDot? "•" : null}
-                            </Text>
-                        )
-                    })
-                }
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                    {
+                        movie?.genres?.map((genres, index)=>{
+                            let showDot = index+1 != movie.genres.length;
+                            return (
+                                <Text key={index} className="text-neutral-400 font-semibold text-base text-center">
+                                    {genres?.name} {showDot? "• " : null}
+                                </Text>
+                            )
+                        })
+                    }
+                </ScrollView>
                 
             </View>
 

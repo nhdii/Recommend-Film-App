@@ -7,21 +7,23 @@ import TrendingMovie from "../components/trendingMovies"
 import MovieList from "../components/movieList";
 import { useNavigation } from "@react-navigation/native";
 import Loading from "../components/loading";
-import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies } from "../api/moviedb";
+import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies, fetchPopularMovies } from "../api/moviedb";
 import { DrawerActions } from '@react-navigation/native';
 
 const ios = Platform.OS == 'ios';
 
 export default function HomeScreen(){
 
-    const [trending, setTrending] = useState([])
-    const [upcoming, setUpcoming] = useState([])
-    const [topRate, setTopRate] = useState([])
+    const [trending, setTrending] = useState([]);
+    const [popular, setPopular] = useState([]);
+    const [upcoming, setUpcoming] = useState([]);
+    const [topRate, setTopRate] = useState([]);
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
 
     useEffect(()=>{
         getTrendingMovies();
+        getPopularMovies();
         getUpcomingMovies();
         getTopRatedMovies();
     },[])
@@ -32,6 +34,13 @@ export default function HomeScreen(){
         // console.log('got trending movies: ', data);
         if( data && data.results) setTrending(data.results);
         setLoading(false);
+    }
+
+    // get data popular movies 
+    const getPopularMovies = async () =>{
+        const data = await fetchPopularMovies();
+        // console.log('got popular movies: ', data);
+        if( data && data.results) setPopular(data.results);
     }
 
     // get data upcoming movies 
@@ -79,6 +88,9 @@ export default function HomeScreen(){
                     >
                         {/* Trending Movie */}
                         {trending.length>0 && <TrendingMovie data={trending} />}
+
+                        {/* Upcoming movie */}
+                        <MovieList title="Popular" data={popular} />
 
                         {/* Upcoming movie */}
                         <MovieList title="Upcoming" data={upcoming} />
