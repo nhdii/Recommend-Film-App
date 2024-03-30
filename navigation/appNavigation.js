@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Image, View, TouchableOpacity, Text } from 'react-native';
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { DrawerContentScrollView, DrawerItem, DrawerItemList, createDrawerNavigator } from "@react-navigation/drawer";
@@ -13,6 +12,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import useAuth from "../hooks/useAuth";
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
+import UserInfo from '../components/userInfo';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -49,30 +49,17 @@ function DrawerContent(props) {
     
     return (
         <DrawerContentScrollView {...props}>
+            {user && 
+                <DrawerItem
+                    label={() => <UserInfo user={user} />}
+                    style={{ marginVertical: 10, paddingHorizontal: 16 }}
+                />}
+            <DrawerItemList {...props} />
             {user && (
                 <DrawerItem
-                    label={()=>(
-                        <TouchableOpacity style={{ marginRight: 4, flexDirection: 'row' }} onPress={() => navigation.navigate('Profile')}>
-                            <View style={{overflow: 'hidden', borderRadius: 50, height: 96, width: 96, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#fff' }}>
-                                <Image source={require('../assets/images/default-avatar.png')} style={{ borderRadius: 20, height: 96, width: 96 }} />
-                            </View>
-                            <View style={{alignItems: 'center', justifyContent: 'center', marginLeft: 10}}>
-                                <Text style={{color: 'white', fontSize: 16}}>
-                                    Test Name
-                                </Text>
-                            </View>
-                        </TouchableOpacity>
-                    )}
-                    style={{marginVertical: 10, paddingHorizontal: 16}}
-                    
-                />
-            )}
-            <DrawerItemList {...props} />
-            {user && ( 
-                <DrawerItem
-                    label="Logout" 
+                    label="Logout"
                     onPress={handleLogout}
-                    labelStyle={{ fontSize: 16}}
+                    labelStyle={{ fontSize: 16 }}
                     {...drawerItemStyle}
                 />
             )}

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import { KeyIcon, EnvelopeIcon, UserIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
+import { KeyIcon, EnvelopeIcon, UserIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../theme';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword} from 'firebase/auth';
 import { auth } from '../config/firebase';
-import { addDoc, collection, getFirestore, query, where, getDocs} from 'firebase/firestore';
+import { addDoc, collection, getFirestore} from 'firebase/firestore';
 import bcrypt from 'react-native-bcrypt'
 
 export default function SignUpScreen() {
@@ -26,51 +26,32 @@ export default function SignUpScreen() {
     };
 
     const handleSignUp = async() => {
-
-        if(!validateEmail(email)){
-            setError("Invalid email format");
-            return;
-        }
-        
-        if(email && password && confirmPassword){
-            if(password != confirmPassword){
-                setError("Passwords do not match");
-                return;
-            }
+        // Kiểm tra xác thực hợp lệ và so sánh mật khẩu
+        if(email && password && confirmPassword && password === confirmPassword){
             try{
-
+                // Tạo tài khoản mới với email và mật khẩu
+                const credential = await createUserWithEmailAndPassword(auth, email, password);
+                
+                // Lưu thông tin người dùng vào Firestore
                 const saltRound = 10;
-                const hashedPassword = await bcrypt.hashSync(password, saltRound); // Hash mật khẩu
-                
-                await createUserWithEmailAndPassword(auth, email, password);
-                
-                // Thêm thông tin người dùng vào Firestore
-                const firestore = getFirestore();
-                const userRef = collection(firestore, 'users');
-                const newUserDoc = await addDoc(userRef, {
+                const hashedPassword = await bcrypt.hashSync(password, saltRound);
+
+                const newUser = {
                     fullName: fullName,
                     email: email,
                     password: hashedPassword,
                     createdAt: new Date().toISOString()
-                });
-                // await addDoc(collection(firestore, 'users'), {
-                //     fullName: fullName, // Thêm fullName vào state nếu đã có
-                //     email: email,
-                //     password: hashedPassword,
-                //     createdAt: new Date().toISOString()
-                // });
+                };
+                await addDoc(collection(firestore, 'users'), { uid: credential.user.uid, ...newUser });
 
-                await signInWithEmailAndPassword(auth, email, password);
-                // Chuyển hướng đến trang Home
+                // Đăng nhập người dùng sau khi đăng ký thành công
                 navigation.navigate('Home');
-            }catch(err){
-                if(err.code === 'auth/email-already-in-use'){
-                    setError('Email is already registered');
-                }else{
-                    console.log('got error: ', err.message);
-                }
-                
+            } catch(err) {
+                console.error('Error signing up:', err.message);
+                setError(err.message);
             }
+        } else {
+            setError('Passwords do not match');
         }
     };
 

@@ -21,10 +21,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.nhdii.RecommendFilmApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d34fb2d2-d6fb-47d9-9a94-3a3abe0b31cc"
+      }
+    },
+    "scheme": "Recommend-Film-App" 
   }
 }

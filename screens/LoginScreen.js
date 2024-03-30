@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { KeyIcon, EnvelopeIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { signInWithEmailAndPassword, onAuthStateChanged, signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
+import { auth  } from '../config/firebase';
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from 'expo-web-browser';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function LoginScreen() {
     const navigation = useNavigation();
@@ -14,13 +18,32 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+        androidClientId: "226134222281-pq004tchbm42dfemuct29bduupu9r9i4.apps.googleusercontent.com",
+    });
+
+    useEffect(() => {
+        if (response?.type === 'success') {
+            const { id_token } = response.params;
+
+            // Xác thực với Firebase sử dụng id_token
+            const credential = GoogleAuthProvider.credential(id_token);
+            signInWithCredential(auth, credential)
+                .then((userCredential) => {
+                    // Đăng nhập thành công, xử lý logic của bạn ở đây
+                })
+                .catch((error) => {
+                    console.error('Error signing in with Google:', error);
+                });
+        }
+    }, [response]);
 
     const handleLogin = async() => {
         if(email && password){
             try{
                 await signInWithEmailAndPassword(auth, email, password);
             }catch(err){
-                console.log('got error: ', err.message);
+                // console.log('got error: ', err.message);
                 if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password'){
                     setError('Invalid email or password');
                 }
@@ -32,8 +55,8 @@ export default function LoginScreen() {
         setShowPassword(!showPassword);
     };
 
-    const handleLoginWithGoogle = () => {
-        // Xử lý đăng nhập bằng Google
+    const handleLoginWithGoogle = async () => {
+        promptAsync();
     };
 
     const handleLoginWithFacebook = () => {
