@@ -12,9 +12,7 @@ const verticalMargin = ios? '': ' my-3'
 
 export default function ProfileScreen() {
     const navigation = useNavigation();
-    const { user, updateProfile } = useAuth(); // Sử dụng hook useAuth để lấy thông tin người dùng và hàm updateProfile
-    const [fullName, setFullName] = useState(user?.displayName || ''); // Sử dụng displayName của người dùng làm giá trị mặc định cho fullName
-    const [photoURL, setPhotoURL] = useState(user?.photoURL || ''); // Sử dụng photoURL của người dùng làm giá trị mặc định cho photoURL
+    const { user } = useAuth(); 
     
     const handleUpdateProfile = () => {
         updateProfile(fullName, photoURL);
@@ -52,7 +50,7 @@ export default function ProfileScreen() {
                     </View>
                     <View className="flex-row justify-center items-center ml-6">
                         <Text className="text-2xl text-white text-center font-bold">
-                            Test Name
+                            {user?.displayName || 'Test Name'}
                         </Text>
                     </View>
                 </View>
@@ -60,14 +58,14 @@ export default function ProfileScreen() {
                 <View className="flex-row mt-6 items-center">
                     <PhoneIcon size="20" strokeWidth={2.5} color="white"/>
                     <Text className="text-md text-white ml-4">
-                        0921328380
+                        {user?.phoneNumber}
                     </Text>
                 </View>
 
                 <View className="flex-row mt-6 items-center">
                     <EnvelopeIcon size="20" strokeWidth={2.5} color="white"/>
                     <Text className="text-md text-white ml-4">
-                        zduy55@gmail.com
+                        {user?.email}
                     </Text>
                 </View>
                 
