@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { KeyIcon, EnvelopeIcon, UserIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../theme';
-import { createUserWithEmailAndPassword} from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile} from 'firebase/auth';
 import { auth } from '../config/firebase';
 import { addDoc, collection, getFirestore} from 'firebase/firestore';
 import bcrypt from 'react-native-bcrypt'
@@ -25,17 +25,17 @@ export default function SignUpScreen() {
         return regex.test(email);
     };
 
-    const handleSignUp = async() => {
+    const handleSignUp = async () => {
         // Kiểm tra xác thực hợp lệ và so sánh mật khẩu
-        if(email && password && confirmPassword && password === confirmPassword){
-            try{
+        if (email && password && confirmPassword && password === confirmPassword) {
+            try {
                 // Tạo tài khoản mới với email và mật khẩu
                 const credential = await createUserWithEmailAndPassword(auth, email, password);
-                
+    
                 // Lưu thông tin người dùng vào Firestore
                 const saltRound = 10;
                 const hashedPassword = await bcrypt.hashSync(password, saltRound);
-
+    
                 const newUser = {
                     fullName: fullName,
                     email: email,
@@ -43,10 +43,15 @@ export default function SignUpScreen() {
                     createdAt: new Date().toISOString()
                 };
                 await addDoc(collection(firestore, 'users'), { uid: credential.user.uid, ...newUser });
-
+    
+                // Cập nhật displayName trong Firebase Authentication
+                await updateProfile(auth.currentUser, {
+                    displayName: fullName
+                });
+    
                 // Đăng nhập người dùng sau khi đăng ký thành công
                 navigation.navigate('Home');
-            } catch(err) {
+            } catch (err) {
                 console.error('Error signing up:', err.message);
                 setError(err.message);
             }
@@ -54,6 +59,7 @@ export default function SignUpScreen() {
             setError('Passwords do not match');
         }
     };
+    
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
