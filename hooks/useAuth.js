@@ -1,6 +1,5 @@
-import { View, Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth, firestore } from '../config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -12,7 +11,7 @@ export default function useAuth() {
             const userJSON = await AsyncStorage.getItem("@user");
             const userData = userJSON ? JSON.parse(userJSON) : null;
             setUser(userData);
-            console.log("got local storage: ", userData);
+            // console.log("got local storage: ", userData);
         }catch(error){
             alert(error.message);
         }

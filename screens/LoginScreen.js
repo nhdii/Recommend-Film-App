@@ -4,7 +4,7 @@ import { KeyIcon, EnvelopeIcon, ArrowLeftIcon, EyeIcon, EyeSlashIcon } from 'rea
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { signInWithEmailAndPassword, onAuthStateChanged, signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithCredential, GoogleAuthProvider } from 'firebase/auth';
 import { auth  } from '../config/firebase';
 import * as Google from "expo-auth-session/providers/google";
 import * as WebBrowser from 'expo-web-browser';
@@ -39,12 +39,13 @@ export default function LoginScreen() {
     }, [response]);
 
     const handleLogin = async() => {
-        if(email && password){
-            try{
-                await signInWithEmailAndPassword(auth, email, password);
-            }catch(err){
-                // console.log('got error: ', err.message);
-                if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password'){
+        if (email && password) {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const userUid = userCredential.user.uid;
+                await getUserDataFromFirestore(userUid);
+            } catch (err) {
+                if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password') {
                     setError('Invalid email or password');
                 }
             }
