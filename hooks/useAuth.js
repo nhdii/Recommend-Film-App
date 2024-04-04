@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { auth, firestore } from '../config/firebase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { doc, updateDoc } from 'firebase/firestore';
 
 export default function useAuth() {
     const [user, setUser] = useState(null);
@@ -33,18 +34,24 @@ export default function useAuth() {
         return () => unsub();
     },[])
 
-    const updateProfile = async (fullName, photoURL) => {
+    const updateUserProfile = async (displayName, phoneNumber, photoURL) => {
         try {
-            await updateDoc(doc(firestore, 'users', user.uid), {
-                fullName: fullName,
+            const uid = user.uid;
+
+            await updateProfile(auth.currentUser, { displayName, phoneNumber, photoURL });
+
+            await updateDoc(doc(firestore, 'users', uid), {
+                displayName: displayName,
+                phoneNumber: phoneNumber,
                 photoURL: photoURL
             });
             console.log("Profile updated successfully");
         } catch (error) {
-            console.error("Error updating profile: ", error);
+            console.error("Error updating profile:", error);
+            throw error;
         }
     };
 
-    return { user, updateProfile };
+    return { user, updateUserProfile };
 
 }

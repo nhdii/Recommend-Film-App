@@ -1,19 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { KeyIcon, EnvelopeIcon, UserIcon, EyeIcon, EyeSlashIcon } from 'react-native-heroicons/outline';
 import { useNavigation } from '@react-navigation/native';
 import { styles } from '../theme';
 import { createUserWithEmailAndPassword, updateProfile} from 'firebase/auth';
 import { auth } from '../config/firebase';
-import { addDoc, collection, getFirestore} from 'firebase/firestore';
+import {updateDoc, setDoc, doc, collection, getFirestore} from 'firebase/firestore';
 import bcrypt from 'react-native-bcrypt'
 
 export default function SignUpScreen() {
     const navigation = useNavigation();
-    const [fullName, setFullName] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [photoURL, setPhotoURL] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
@@ -25,41 +27,42 @@ export default function SignUpScreen() {
         return regex.test(email);
     };
 
+    //add thông tin user vào firestore
+    async function DataStore(){
+        const userRef = doc(firestore, "users", auth.currentUser.uid )
+        await setDoc(userRef, {
+            displayName,
+            email,
+            phoneNumber,
+            photoURL, 
+            createAt: new Date().toISOString()
+        })
+        
+    }
+
     const handleSignUp = async () => {
-        // Kiểm tra xác thực hợp lệ và so sánh mật khẩu
-        if (email && password && confirmPassword && password === confirmPassword) {
+        if (displayName && email && password && confirmPassword && password === confirmPassword) {
             try {
-                // Tạo tài khoản mới với email và mật khẩu
-                const credential = await createUserWithEmailAndPassword(auth, email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+    
+                if (user) {
+                    // Cập nhật displayName vào Authentication
+                    await updateProfile(user, { displayName: displayName });
+                    
+                    // Chuyển hướng người dùng đến trang Home sau khi đăng ký thành công
+                    navigation.navigate('Home');
+                }
     
                 // Lưu thông tin người dùng vào Firestore
-                const saltRound = 10;
-                const hashedPassword = await bcrypt.hashSync(password, saltRound);
-    
-                const newUser = {
-                    fullName: fullName,
-                    email: email,
-                    password: hashedPassword,
-                    createdAt: new Date().toISOString()
-                };
-                await addDoc(collection(firestore, 'users'), { uid: credential.user.uid, ...newUser });
-    
-                // Cập nhật displayName trong Firebase Authentication
-                await updateProfile(auth.currentUser, {
-                    displayName: fullName
-                });
-    
-                // Đăng nhập người dùng sau khi đăng ký thành công
-                navigation.navigate('Home');
-            } catch (err) {
-                console.error('Error signing up:', err.message);
-                setError(err.message);
+                await DataStore();
+            } catch (error) {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                Alert.alert(errorMessage);
             }
-        } else {
-            setError('Passwords do not match');
         }
     };
-    
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
@@ -88,8 +91,8 @@ export default function SignUpScreen() {
                 <View className="bg-neutral-700 text-white px-4 py-2 rounded-lg flex-row items-center mb-4">
                     <UserIcon size={24} color="gray" />
                     <TextInput
-                        value={fullName}
-                        onChangeText={value => setFullName(value)}
+                        value={displayName}
+                        onChangeText={value => setDisplayName(value)}
                         placeholder="FullName"
                         placeholderTextColor="gray"
                         className="flex-1 ml-4 text-white"

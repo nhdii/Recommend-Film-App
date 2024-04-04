@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "1.21.0",
     "@react-native-google-signin/google-signin": "^11.0.1",
     "@react-navigation/drawer": "^6.6.13",
     "@react-navigation/native": "^6.1.15",
@@ -18,8 +19,13 @@
     "bcrypt-react-native": "^1.1.1",
     "bcryptjs": "^2.4.3",
     "expo": "^50.0.8",
+    "expo-application": "~5.8.3",
+    "expo-auth-session": "~5.4.0",
+    "expo-crypto": "~12.8.1",
+    "expo-dev-client": "~3.3.11",
     "expo-linear-gradient": "~12.7.2",
     "expo-status-bar": "~1.11.1",
+    "expo-web-browser": "~12.8.2",
     "firebase": "^10.9.0",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",
@@ -36,12 +42,7 @@
     "react-native-snackbar": "^2.6.2",
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "14.1.0",
-    "expo-auth-session": "~5.4.0",
-    "expo-crypto": "~12.8.1",
-    "expo-web-browser": "~12.8.2",
-    "expo-application": "~5.8.3",
-    "expo-dev-client": "~3.3.11",
-    "@react-native-async-storage/async-storage": "1.21.0"
+    "expo-image-picker": "~14.7.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

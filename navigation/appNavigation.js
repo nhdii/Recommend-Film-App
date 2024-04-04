@@ -13,19 +13,21 @@ import useAuth from "../hooks/useAuth";
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import UserInfo from '../components/userInfo';
+import EditProfileScreen from '../screens/EditProfileScreen';
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 
 function HomeNavigation() {
     return (
-      <Stack.Navigator>
-        <Stack.Screen name="Home" options={{headerShown: false}} component={HomeScreen} />
-        <Stack.Screen name="Movie" options={{headerShown: false}} component={MovieScreen} />
-        <Stack.Screen name="Person" options={{headerShown: false}} component={PersonScreen} />
-        <Stack.Screen name="Search" options={{headerShown: false}} component={SearchScreen} />
-        <Stack.Screen name="Profile" options={{headerShown: false}} component={ProfileScreen}/>
-        <Stack.Screen name="SignUp" options={{headerShown: false}} component={SignUpScreen}/>
+      <Stack.Navigator screenOptions={{headerShown:false}}>
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Movie" component={MovieScreen} />
+        <Stack.Screen name="Person" component={PersonScreen} />
+        <Stack.Screen name="Search" component={SearchScreen} />
+        <Stack.Screen name="Profile" component={ProfileScreen}/>
+        <Stack.Screen name="EditProfile" component={EditProfileScreen}/>
+        <Stack.Screen name="SignUp" component={SignUpScreen}/>
       </Stack.Navigator>
     );
 }
