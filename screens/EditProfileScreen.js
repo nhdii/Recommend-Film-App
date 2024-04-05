@@ -1,8 +1,8 @@
-import { View, Text, Image, TouchableOpacity, SafeAreaView, Dimensions, Platform, ScrollView } from 'react-native'
+import { View, Text, Image, TouchableOpacity, SafeAreaView, Dimensions, Platform, ScrollView, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import useAuth from '../hooks/useAuth'; 
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeftIcon } from 'react-native-heroicons/solid';
+import { ChevronLeftIcon, PencilIcon } from 'react-native-heroicons/solid';
 import * as ImagePicker from 'expo-image-picker';
 import { styles } from '../theme';
 
@@ -12,16 +12,18 @@ const verticalMargin = ios? '': ' my-3'
 
 export default function EditProfileScreen() {
     const navigation = useNavigation();
-    const { user, updateUserProfile } = useAuth(); 
-    const [displayName, setDisplayName] = useState(user?.displayName || '');
-    const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || '');
+    const {user, updateUserProfile } = useAuth(); 
+    const [displayName, setDisplayName] = useState(null);
+    const [phoneNumber, setPhoneNumber] = useState(null);
     const [photoURL, setPhotoURL] = useState(null);
 
     const handleUpdateProfile = async () => {
       try {
+        console.log("got phoneNumber", phoneNumber);
           await updateUserProfile( displayName, phoneNumber, photoURL);
           // await updateProfile(fullName, phoneNumber, updatedPhotoURL);
           // Cập nhật thành công, có thể điều hướng đến màn hình khác hoặc hiển thị thông báo
+          
           navigation.goBack();
       } catch (error) {
           console.error('Error updating profile: ', error.message);
@@ -55,16 +57,24 @@ export default function EditProfileScreen() {
         <TouchableOpacity onPress={()=> navigation.goBack()} style={styles.background} className="rounded-xl p-1">
           <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" className="rounded-xl p-1" />
         </TouchableOpacity>
+        <View className="flex-1 items-center pr-8">
+          <Text className="text-white text-lg font-bold">
+            Edit Profile
+          </Text>         
+        </View>
       </SafeAreaView>
 
-      <View className="mx-6">
-        <View className="flex-row justify-center mt-4">
-          <View className="items-center rounded-full overflow-hidden h-32 w-32 border-2 border-neutral-500">
+      <View className="flex-1 mx-3">
+        <View className="flex-row justify-center mt-6 mb-4">
+          <View className="items-center rounded-full overflow-hidden h-32 w-32 border-2 border-neutral-500 ">
+            <TouchableOpacity onPress={pickImage} className="absolute bottom-2 right-2 bg-gray-600 p-1 rounded-full">
+              <PencilIcon size={24} color="white" />
+            </TouchableOpacity>
             <TouchableOpacity onPress={pickImage} className="items-center">
               {
-                photoURL ? (
+                user?.photoURL ? (
                   <Image 
-                    source={{uri: photoURL}}
+                    source={{uri: user?.photoURL}}
                     style={{height: height*0.17, width: width*0.36}}
                   />
                 ): (
@@ -75,9 +85,37 @@ export default function EditProfileScreen() {
                 )
               }
             </TouchableOpacity>
+            
+          </View>
+        </View>
+
+        {/* Display current displayName and phoneNumber */}
+        <View className="px-4 mt-4">
+          <Text className="text-white text-lg font-semibold pb-2">Full name</Text>
+          <View className="bg-neutral-700 text-white px-4 py-2 rounded-lg flex-row items-center mb-4"> 
+            <TextInput
+                value={displayName}
+                onChangeText={setDisplayName}
+                placeholder={user?.displayName}
+                placeholderTextColor="gray"
+                className="flex-1 text-white text-lg"                    
+            />
+          </View>
+
+          <Text className="text-white text-lg font-semibold pb-2 mt-4">Phone Number</Text>
+          <View className="bg-neutral-700 text-white px-4 py-2 rounded-lg flex-row items-center mb-4"> 
+            <TextInput
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                placeholder={user?.phoneNumber || 'Phone Number'}
+                placeholderTextColor="gray"
+                className="flex-1 text-white text-lg"                    
+            />
           </View>
         </View>
       </View>
+
+      
 
       {/* Button update */}
       <TouchableOpacity onPress={handleUpdateProfile} style={{ ...styles.backgroundButton, marginHorizontal: 24, paddingVertical: 12, borderRadius: 8, marginTop: 16 }}>

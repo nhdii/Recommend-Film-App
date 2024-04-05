@@ -22,14 +22,20 @@ export default function ProfileScreen() {
                     <ChevronLeftIcon size="28" strokeWidth={2.5} color="white"/>
                 </TouchableOpacity>
 
+                <View className="flex-1 items-center">
+                    <Text className="text-white text-lg font-bold">
+                        Profile
+                    </Text>         
+                </View>
+
                 <TouchableOpacity onPress={()=>navigation.navigate("EditProfile")} className="rounded-xl p-1">
                     <PencilSquareIcon size="28" strokeWidth={2.5} color="white"/>
                 </TouchableOpacity>
             </SafeAreaView>
 
-            <View className="mx-6">
+            <View className="mx-6 pt-6">
                 <View 
-                    className="flex-row mt-4"
+                    className="flex-row mt-4 mb-4"
                     style={{
                         shadowColor: 'gray',
                         shadowRadius: 40,
@@ -67,9 +73,9 @@ export default function ProfileScreen() {
                 
             </View>
 
-            <View className="my-6 border-t-2 border-neutral-400">
+            <View className="my-8 border-t-2 border-neutral-400">
                 {/* Favorite Movies */}
-                <TouchableOpacity className="flex-row mt-6 mx-6 items-center">
+                <TouchableOpacity className="flex-row mt-8 mx-6 items-center">
                     <HeartIcon size="22" strokeWidth={2.5} color="white"/>
                     <Text className="text-white text-md pl-4">
                         Your Favorites
