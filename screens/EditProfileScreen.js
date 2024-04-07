@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon, PencilIcon } from 'react-native-heroicons/solid';
 import * as ImagePicker from 'expo-image-picker';
 import { styles } from '../theme';
+import Alert from '../components/alert';
 
 var {width, height} = Dimensions.get('window')
 const ios = Platform.OS == 'ios';
@@ -16,15 +17,21 @@ export default function EditProfileScreen() {
     const [displayName, setDisplayName] = useState(null);
     const [phoneNumber, setPhoneNumber] = useState(null);
     const [photoURL, setPhotoURL] = useState(null);
+    const [showAlert, setShowAlert] = useState(false); // State to control visibility of custom alert
 
     const handleUpdateProfile = async () => {
       try {
-        console.log("got phoneNumber", phoneNumber);
           await updateUserProfile( displayName, phoneNumber, photoURL);
           // await updateProfile(fullName, phoneNumber, updatedPhotoURL);
-          // Cập nhật thành công, có thể điều hướng đến màn hình khác hoặc hiển thị thông báo
+          // Cập nhật thành công, điều hướng đến màn hình trước và hiển thị thông báo
           
-          navigation.goBack();
+          // Alert.alert(
+          //   "Success",
+          //   "Profile updated successfully",
+          //   [{ text: "OK", onPress: () => navigation.goBack() }],
+          // );
+
+          setShowAlert(true); // Show custom alert
       } catch (error) {
           console.error('Error updating profile: ', error.message);
           // Xử lý lỗi khi cập nhật hồ sơ
@@ -115,12 +122,19 @@ export default function EditProfileScreen() {
         </View>
       </View>
 
-      
-
+    
       {/* Button update */}
       <TouchableOpacity onPress={handleUpdateProfile} style={{ ...styles.backgroundButton, marginHorizontal: 24, paddingVertical: 12, borderRadius: 8, marginTop: 16 }}>
         <Text style={{ color: 'white', textAlign: 'center', fontSize: 16, fontWeight: 'bold' }}>Save Changes</Text>
       </TouchableOpacity>
+
+      {/* Alert message update succesful */}
+      <Alert 
+        visible={showAlert} // Sửa tên prop thành visible
+        message="Profile updated successfully"
+        onClose={() => setShowAlert(false)}
+        autoCloseTimeout={4000} // Đóng sau 3 giây
+      />
     </ScrollView>
   )
 }
