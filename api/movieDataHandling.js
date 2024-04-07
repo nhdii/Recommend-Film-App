@@ -1,32 +1,17 @@
-import { getDoc, doc, collection, setDoc } from 'firebase/firestore';
+import { addDoc, doc, collection  } from 'firebase/firestore';
 import { fetchTrendingMovies, fetchPopularMovies } from '../api/moviedb';
 import { firestore } from '../config/firebase';
 
-// Hàm để kiểm tra xem một bộ phim đã tồn tại trong Firestore hay chưa
-async function movieExists(movieId) {
-    const movieRef = doc(firestore, 'movies', movieId);
-    const snapshot = await getDoc(movieRef);
-    return snapshot.exists();
-}
-
-// Hàm để lưu thông tin bộ phim vào Firestore (nếu chưa tồn tại)
-async function saveMovieToFirestore(movieData) {
+// Hàm để lưu thông tin bộ phim vào Firestore
+const saveMovieToFirestore = async (movieData) => {
     try {
-        // Kiểm tra xem bộ phim đã tồn tại trong Firestore chưa
-        const exists = await movieExists(movieData.id);
-        if (!exists) {
-            // Nếu bộ phim chưa tồn tại, thêm mới vào Firestore
-            const moviesCollection = collection(firestore, 'movies');
-            await setDoc(doc(moviesCollection, movieData.id), movieData);
-            console.log('Movie added to Firestore successfully');
-        } else {
-            console.log('Movie already exists in Firestore');
-        }
+        const moviesCollection = collection(firestore, 'movies'); // Tham chiếu đến collection 'movies'
+        await addDoc(moviesCollection, movieData); // Thêm một tài liệu mới vào collection 'movies'
+        console.log('Movie added to Firestore successfully');
     } catch (error) {
         console.error('Error adding movie to Firestore: ', error);
     }
 }
-
 // Hàm xử lý dữ liệu từ API và lưu vào Firestore
 export const handleMovieData = async () => {
     try {
@@ -35,10 +20,13 @@ export const handleMovieData = async () => {
         const popularMovies = await fetchPopularMovies();
         
         // Xử lý và lưu thông tin của mỗi bộ phim vào Firestore
-        trendingMovies.results.forEach(async movie => {
-            const movieData = {
-                id: movie.id,
+        trendingMovies.results.forEach(async movie => { // Sử dụng forEach với async function để chờ lệnh saveMovieToFirestore hoàn thành
+            
+            console.log("got movie id: ", movie.id);
+            const movieData = { // Xử lý dữ liệu từ API để trích xuất thông tin cần thiết về mỗi bộ phim
+                id: movie.id, // Cần phải có một trường để định danh tài liệu, ví dụ: id
                 title: movie.title,
+                // runtime: movie.runtime,
                 overview: movie.overview,
                 release_date: movie.release_date,
                 poster_path: movie.poster_path,
@@ -46,7 +34,7 @@ export const handleMovieData = async () => {
                 vote_average: movie.vote_average,
                 //Thêm các thông tin khác nếu cần
             };
-            await saveMovieToFirestore(movieData);
+            await saveMovieToFirestore(movieData); // Sử dụng await để đợi hàm saveMovieToFirestore hoàn thành trước khi đi tiếp
         });
         
         // Tương tự, xử lý và lưu thông tin của các bộ phim khác (popularMovies, vv.)
