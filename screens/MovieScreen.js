@@ -1,7 +1,6 @@
-import { View, Text, ScrollView, TouchableOpacity, Dimensions, Platform, Image } from 'react-native'
+import { View, Text, ScrollView, TouchableOpacity, SafeAreaView, Dimensions, Platform, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import {HeartIcon } from 'react-native-heroicons/solid';
 import { styles, theme } from '../theme';
@@ -11,28 +10,41 @@ import MovieList from '../components/movieList';
 import { fetchMovieCredits, fetchMovieDetails, fetchMovieSimilar, image500 } from '../api/moviedb';
 import Loading from '../components/loading';
 import Director from '../components/director';
+import useAuth from '../hooks/useAuth';
+import { addToFavorites, removeFromFavorites, checkIsMovieFavorite} from '../utils/favorites';
+import Alert from '../components/alert';
 
 var {width, height} = Dimensions.get('window')
-// const ios = Platform.OS == 'ios';
-// const topMargin = ios? '': ' mt-3';
+const android = Platform.OS == 'android';
+const topMargin = android? ' mt-3': '';
 
 export default function MovieScreen() {
     const {params: item} = useRoute();
-    const [isFavourite, toggleFavourite] = useState(false);
+    const [isFavourite, setIsFavourite] = useState(false);
     const navigation = useNavigation();
     const [cast, setCast] = useState([]);
     const [director, setDirector] = useState([]);
     const [similarMovies, setSimilarMovies] = useState([]);
     const [loading, setLoading] = useState(false);
     const [movie, setMovie]= useState({});
+    const { user } = useAuth(); 
+    const [showAlert, setShowAlert] = useState(false); // State to control visibility of custom alert
+    const [alertMessage, setAlertMessage] = useState('');
 
-    useEffect(()=> {
-        // console.log('itemId: ', item.id);
+    useEffect(() => {
         setLoading(true);
         getMovieDetails(item.id);
         getMovieCredits(item.id);
         getSimilarMovie(item.id);
-    },[item])
+        const checkIsFavorite = async () => {
+            if (user && user.uid) {
+                const isFavorite = await checkIsMovieFavorite(user.uid, item.id);
+                setIsFavourite(isFavorite);
+            }
+        };
+
+        checkIsFavorite();
+    }, [item, user]); // Thêm isFavourite và user vào dependency array
 
     const getMovieDetails = async id=>{
         const data = await fetchMovieDetails(id);
@@ -62,6 +74,26 @@ export default function MovieScreen() {
         if(data && data.results) setSimilarMovies(data.results);
     }
 
+     // Hàm xử lý sự kiện nhấn vào biểu tượng yêu thích
+    const handleToggleFavourite = () => {
+        if (!user || !user.uid) {
+            // Nếu người dùng chưa đăng nhập, chuyển hướng tới trang đăng nhập
+            navigation.navigate('Login');
+            return;
+        }
+        if (isFavourite) {
+            removeFromFavorites(user.uid, movie.id);
+            setIsFavourite(false); // Cập nhật trạng thái yêu thích
+            setAlertMessage("Movie removed from favorites successfully"); // Cập nhật message cho trường hợp xóa phim khỏi yêu thích
+            setShowAlert(true); // Hiển thị thông báo
+        } else {
+            addToFavorites(user.uid, movie.id);
+            setIsFavourite(true); // Cập nhật trạng thái yêu thích
+            setAlertMessage("Movie added to favorites successfully"); // Cập nhật message cho trường hợp thêm phim vào yêu thích
+            setShowAlert(true); // Hiển thị thông báo
+        }
+    };
+
   return (
     <ScrollView
         contentContainerStyle={{paddingBottom: 20}}
@@ -69,12 +101,12 @@ export default function MovieScreen() {
     >
         <View className="w-full">
             {/* back button */}
-            <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center px-4 mt-3"} >
+            <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center px-4 mt-10"} >
                 <TouchableOpacity onPress={()=> navigation.goBack()} style={styles.background} className="rounded-xl p-1">
                     <ChevronLeftIcon size="28" strokeWidth={2.5} color="white"/>
                 </TouchableOpacity>
 
-                <TouchableOpacity onPress={()=> toggleFavourite(!isFavourite)}>
+                <TouchableOpacity onPress={handleToggleFavourite}>
                     <HeartIcon size="28" color={isFavourite? theme.background : "white"}/>
                 </TouchableOpacity>
             </SafeAreaView>
@@ -152,6 +184,13 @@ export default function MovieScreen() {
         {/* similar movies */}
         {similarMovies.length>0 && <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />}
 
+        {/* Alert message update succesful */}
+        <Alert 
+            visible={showAlert} // Sửa tên prop thành visible
+            message={alertMessage}
+            onClose={() => setShowAlert(false)}
+            autoCloseTimeout={4000} // Đóng sau 3 giây
+        />
     </ScrollView>
   )
 }

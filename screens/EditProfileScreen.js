@@ -34,7 +34,6 @@ export default function EditProfileScreen() {
           setShowAlert(true); // Show custom alert
       } catch (error) {
           console.error('Error updating profile: ', error.message);
-          // Xử lý lỗi khi cập nhật hồ sơ
       }
     };
 
