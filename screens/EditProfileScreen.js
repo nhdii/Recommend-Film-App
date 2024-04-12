@@ -8,8 +8,6 @@ import { styles } from '../theme';
 import Alert from '../components/alert';
 
 var {width, height} = Dimensions.get('window')
-const ios = Platform.OS == 'ios';
-const verticalMargin = ios? '': ' my-3'
 
 export default function EditProfileScreen() {
     const navigation = useNavigation();
@@ -59,7 +57,7 @@ export default function EditProfileScreen() {
 
   return (
     <ScrollView className="flex-1 bg-neutral-900" contentContainerStyle={{paddingBottom: 20}}>
-      <SafeAreaView className={"z-20 w-full flex-row justify-between items-center px-4 pt-8 mt-3" + verticalMargin}>
+      <SafeAreaView className="z-20 w-full flex-row justify-between items-center px-4 pt-8 mt-3">
         <TouchableOpacity onPress={()=> navigation.goBack()} style={styles.background} className="rounded-xl p-1">
           <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" className="rounded-xl p-1" />
         </TouchableOpacity>

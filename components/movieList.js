@@ -9,10 +9,11 @@ var {width, height} = Dimensions.get('window')
 
 export default function MovieList({title, data, hideSeeAll}) {
     const navigation = useNavigation();
+    
   return (
     <View className="mb-6 mt-6 space-y-4">
       <View className="mx-4 flex-row justify-between items-center" >
-        <Text className="text-white text-xl">
+        <Text className="text-white text-xl mb-2">
             {title}
         </Text>
 

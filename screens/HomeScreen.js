@@ -62,7 +62,7 @@ export default function HomeScreen(){
         <View className="flex-1 bg-neutral-800">
             {/* Search bar and Logo */}
             {/* <SafeAreaView className={ios? "-mb-2" : '-mb-3 mt-10'}> */}
-            <SafeAreaView className={'mb-2 mt-10'}>
+            <SafeAreaView className='mb-2 mt-10'>
                 <StatusBar style="light"/>
                 <View className="flex-row justify-between items-center mx-4">
                     <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>

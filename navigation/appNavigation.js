@@ -9,11 +9,13 @@ import SearchScreen from "../screens/SearchScreen";
 import LoginScreen from "../screens/LoginScreen";
 import SignUpScreen from "../screens/SignupScreen";
 import ProfileScreen from '../screens/ProfileScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import FavoritesScreen from '../screens/FavoritesScreen';
 import useAuth from "../hooks/useAuth";
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import UserInfo from '../components/userInfo';
-import EditProfileScreen from '../screens/EditProfileScreen';
+
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -27,6 +29,7 @@ function HomeNavigation() {
         <Stack.Screen name="Search" component={SearchScreen} />
         <Stack.Screen name="Profile" component={ProfileScreen}/>
         <Stack.Screen name="EditProfile" component={EditProfileScreen}/>
+        <Stack.Screen name="Favorite" component={FavoritesScreen}/>
         <Stack.Screen name="SignUp" component={SignUpScreen}/>
       </Stack.Navigator>
     );

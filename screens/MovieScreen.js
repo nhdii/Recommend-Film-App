@@ -101,7 +101,7 @@ export default function MovieScreen() {
     >
         <View className="w-full">
             {/* back button */}
-            <SafeAreaView className={"absolute z-20 w-full flex-row justify-between items-center px-4 mt-10"} >
+            <SafeAreaView className={"absolute top-1 z-20 w-full flex-row justify-between items-center px-4 mt-10"} >
                 <TouchableOpacity onPress={()=> navigation.goBack()} style={styles.background} className="rounded-xl p-1">
                     <ChevronLeftIcon size="28" strokeWidth={2.5} color="white"/>
                 </TouchableOpacity>
@@ -110,7 +110,6 @@ export default function MovieScreen() {
                     <HeartIcon size="28" color={isFavourite? theme.background : "white"}/>
                 </TouchableOpacity>
             </SafeAreaView>
-
             {
                 loading ?(
                     <Loading />

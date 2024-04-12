@@ -75,7 +75,7 @@ export default function ProfileScreen() {
 
             <View className="my-8 border-t-2 border-neutral-400">
                 {/* Favorite Movies */}
-                <TouchableOpacity className="flex-row mt-8 mx-6 items-center">
+                <TouchableOpacity onPress={()=> navigation.navigate('Favorite')} className="flex-row mt-8 mx-6 items-center">
                     <HeartIcon size="22" strokeWidth={2.5} color="white"/>
                     <Text className="text-white text-md pl-4">
                         Your Favorites

@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function useAuth() {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState();
 
     const getUserDataFromFirestore = async (uid) => {
         try {
