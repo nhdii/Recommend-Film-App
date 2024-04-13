@@ -49,6 +49,8 @@ export default function LoginScreen() {
                     setError('Invalid email or password');
                 }
             }
+        }else{
+            setError('Please fill in all fields');
         }
     };
 
@@ -116,7 +118,7 @@ export default function LoginScreen() {
                     </View>
 
                     {/* error message */}
-                    <Text className="text-red-700 text-center">{error}</Text>
+                    <Text className="text-red-700 text-base text-center">{error}</Text>
 
                     <TouchableOpacity>
                         <Text className="text-right text-white font-semibold">Forgot your password?</Text>
