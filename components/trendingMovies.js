@@ -9,7 +9,7 @@ var {width, height} = Dimensions.get('window')
 export default function TrendingMovie({data}) {
   const navigation = useNavigation(); 
   const handleClick = (item)=>{
-    navigation.navigate('Movie', item)
+    navigation.navigate('Movie', item);
   }
   return (
     <View>

@@ -1,25 +1,30 @@
+import axios from 'axios';
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, SafeAreaView, Platform, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from "react-native";
 import { Bars3CenterLeftIcon, MagnifyingGlassIcon } from "react-native-heroicons/outline";
 import { styles } from "../theme";
 import TrendingMovie from "../components/trendingMovies"
 import MovieList from "../components/movieList";
 import { useNavigation } from "@react-navigation/native";
 import Loading from "../components/loading";
-import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies, fetchPopularMovies } from "../api/moviedb";
+import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies, fetchPopularMovies, fetchMovieDetails } from "../api/moviedb";
 import { DrawerActions } from '@react-navigation/native';
-
-const ios = Platform.OS == 'ios';
+import RecommendMovie from "../components/recommendMovie";
+import useAuth from "../hooks/useAuth";
 
 export default function HomeScreen(){
 
+    const apiRecommendUrl = "http://192.168.111.212:50100/receive-favorites";
+
+    const [recommendedMovies, setRecommendedMovies] = useState([]);
     const [trending, setTrending] = useState([]);
     const [popular, setPopular] = useState([]);
     const [upcoming, setUpcoming] = useState([]);
     const [topRate, setTopRate] = useState([]);
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
+    const { user } = useAuth(); 
 
     useEffect(()=>{
         getTrendingMovies();
@@ -27,6 +32,60 @@ export default function HomeScreen(){
         getUpcomingMovies();
         getTopRatedMovies();
     },[])
+
+    useEffect(() => {
+        if (user && user.favorites) {
+            getRecommendedMovies();
+        }
+    }, [user]);
+    
+    // get data recommend movies
+    const getRecommendedMovies = async () => {
+        try {
+            const movieNames = await Promise.all(user.favorites.map(async (movieId) => {
+                try {
+                    const movieName = await getMovieNameById(movieId);
+                    return movieName;
+                } catch (error) {
+                    console.error('Error fetching movie name:', error);
+                    return null;
+                }
+            }));
+            // Gửi yêu cầu lấy danh sách movie favorites từ API
+            const favoritesResponse = await axios.post(apiRecommendUrl, {
+                favorites: movieNames.filter(movieName => movieName !== null), 
+            });
+
+            // Nhận dữ liệu recommended movies từ API
+            const data = favoritesResponse.data;
+            console.log("got movie recommend from API: ", movieNames.filter(movieName => movieName !== null),);
+            // Kiểm tra nếu có dữ liệu recommended movies được trả về
+            if (data && data.recommended_movies) {
+                console.log("got movie recommend from API: ", data.recommended_movies);
+                setRecommendedMovies(data.recommended_movies);
+            }
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching recommended movies:', error);
+            setLoading(false);
+        }
+    };
+
+    const getMovieNameById = async (movieId) => {
+        try {
+            const movieDetails = await fetchMovieDetails(movieId);
+            
+            if (movieDetails) {
+                return movieDetails.title;
+            } else {
+                return null;
+            }
+        } catch (error) {
+            console.error('Error fetching movie details:', error);
+            throw error;
+        }
+    };
+    
 
     // get data trending movies
     const getTrendingMovies = async () =>{
@@ -39,7 +98,7 @@ export default function HomeScreen(){
     // get data popular movies 
     const getPopularMovies = async () =>{
         const data = await fetchPopularMovies();
-        // console.log('got popular movies: ', data);
+        // console.log('got popular movies: ', data.results);
         if( data && data.results) setPopular(data.results);
     }
 
@@ -61,7 +120,6 @@ export default function HomeScreen(){
     return (
         <View className="flex-1 bg-neutral-800">
             {/* Search bar and Logo */}
-            {/* <SafeAreaView className={ios? "-mb-2" : '-mb-3 mt-10'}> */}
             <SafeAreaView className='mb-2 mt-10'>
                 <StatusBar style="light"/>
                 <View className="flex-row justify-between items-center mx-4">
@@ -86,17 +144,20 @@ export default function HomeScreen(){
                         showsVerticalScrollIndicator={false}
                         contentContainerStyle={{paddingBottom: 10}} 
                     >
+
+                        {/* <RecommendMovie data={recommendedMovies}/> */}
+                        {recommendedMovies.length>0 && <RecommendMovie data={recommendedMovies}/>}
                         {/* Trending Movie */}
                         {trending.length>0 && <TrendingMovie data={trending} />}
 
                         {/* Upcoming movie */}
-                        <MovieList title="Popular" data={popular} />
+                        <MovieList title="Popular" data={popular} hideSeeAll={true}/>
 
                         {/* Upcoming movie */}
-                        <MovieList title="Upcoming" data={upcoming} />
+                        <MovieList title="Upcoming" data={upcoming} hideSeeAll={true}/>
 
                         {/* Top rate movie */}
-                        <MovieList title="Top Rated" data={topRate} />
+                        <MovieList title="Top Rated" data={topRate} hideSeeAll={true}/>
 
                     </ScrollView>
                 )

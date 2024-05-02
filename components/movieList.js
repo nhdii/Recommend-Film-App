@@ -6,7 +6,6 @@ import { image185 } from '../api/moviedb';
 
 var {width, height} = Dimensions.get('window')
 
-
 export default function MovieList({title, data, hideSeeAll}) {
     const navigation = useNavigation();
     
