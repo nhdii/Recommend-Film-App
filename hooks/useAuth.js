@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { auth, firestore } from '../config/firebase';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 export default function useAuth() {
@@ -23,41 +22,21 @@ export default function useAuth() {
         }
     }
 
-    const checkLocalUser = async ()=>{
-        try {
-            const userJSON = await AsyncStorage.getItem("@user");
-            const userData = userJSON ? JSON.parse(userJSON) : null;
-            if (userData) {
-                const userDataFromFirestore = await getUserDataFromFirestore(userData.uid);
-                setUser({ ...userData, ...userDataFromFirestore });
-            }
-        }catch(error){
-            alert(error.message);
-        }
-    }
-
-    useEffect(()=>{
-        checkLocalUser();
-        const unsub = onAuthStateChanged(auth, async (user)=>{
-            
-            if(user){
-                console.log('got user: ', JSON.stringify(user, null, 2));
-                setUser(user);
-                await AsyncStorage.setItem("@user", JSON.stringify(user));
-            }else{
+    useEffect(() => {
+        const unsub = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDataFromFirestore = await getUserDataFromFirestore(user.uid);
+                setUser({ ...user, ...userDataFromFirestore });
+            } else {
                 setUser(null);
-                await AsyncStorage.removeItem("@user");
             }
         });
         return () => unsub();
-    },[])
+    }, []);
 
     const updateUserProfile = async (displayName, phoneNumber, photoURL) => {
         try {
             const uid = user.uid;
-            console.log("got displayName: ", displayName);
-            console.log("got phoneNumber: ", phoneNumber);
-            console.log("got photoURL: ", photoURL);
 
             // Tạo object để lưu trữ các trường cần cập nhật
             const updateFields = {};
@@ -93,5 +72,4 @@ export default function useAuth() {
     };
 
     return { user, updateUserProfile };
-
 }
