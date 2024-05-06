@@ -6,7 +6,7 @@ import { fetchMovieDetails, image500 } from '../api/moviedb';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeftIcon } from 'react-native-heroicons/outline';
 import { styles } from '../theme';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { firestore } from '../config/firebase';
 import useAuth from '../hooks/useAuth';
 
@@ -40,7 +40,24 @@ export default function FavoritesScreen() {
             }
         };
     
-        fetchFavorites();
+        if (user && user.uid) {
+            fetchFavorites();
+    
+            const unsubscribe = onSnapshot(doc(firestore, 'users', user.uid), (snapshot) => {
+                const favoritesIds = snapshot.data().favorites || [];
+                const favoriteMoviesPromises = favoritesIds.map(async (movieId) => {
+                    const movieDetails = await fetchMovieDetails(movieId);
+                    return movieDetails;
+                });
+                Promise.all(favoriteMoviesPromises).then((favoriteMovies) => {
+                    setFavorites(favoriteMovies);
+                });
+            });
+    
+            return () => unsubscribe();
+        } else {
+            setLoading(false);
+        }
     }, [user]); // Add user as a dependency to useEffect
     
 
@@ -71,6 +88,7 @@ export default function FavoritesScreen() {
                         data={favorites}
                         navigation={navigation}
                         hideSeeAll={true}
+                        hideDelete={false}
                     />
                 </ScrollView>
             )}

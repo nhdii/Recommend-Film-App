@@ -16,7 +16,6 @@ import Alert from '../components/alert';
 
 var {width, height} = Dimensions.get('window')
 const android = Platform.OS == 'android';
-const topMargin = android? ' mt-3': '';
 
 export default function MovieScreen() {
     const {params: item} = useRoute();
@@ -181,7 +180,7 @@ export default function MovieScreen() {
         {cast.length>0 && <Cast navigation={navigation} cast={cast} />}
         
         {/* similar movies */}
-        {similarMovies.length>0 && <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} />}
+        {similarMovies.length>0 && <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} hideDelete={true}/>}
 
         {/* Alert message update succesful */}
         <Alert 

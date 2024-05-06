@@ -15,7 +15,7 @@ import useAuth from "../hooks/useAuth";
 
 export default function HomeScreen(){
 
-    const apiRecommendUrl = "http://192.168.111.212:50100/receive-favorites";
+    const apiRecommendUrl = "http://10.160.1.82:50100/receive-favorites";
 
     const [recommendedMovies, setRecommendedMovies] = useState([]);
     const [trending, setTrending] = useState([]);
@@ -151,13 +151,13 @@ export default function HomeScreen(){
                         {trending.length>0 && <TrendingMovie data={trending} />}
 
                         {/* Upcoming movie */}
-                        <MovieList title="Popular" data={popular} hideSeeAll={true}/>
+                        <MovieList title="Popular" data={popular} hideSeeAll={true} hideDelete={true}/>
 
                         {/* Upcoming movie */}
-                        <MovieList title="Upcoming" data={upcoming} hideSeeAll={true}/>
+                        <MovieList title="Upcoming" data={upcoming} hideSeeAll={true} hideDelete={true}/>
 
                         {/* Top rate movie */}
-                        <MovieList title="Top Rated" data={topRate} hideSeeAll={true}/>
+                        <MovieList title="Top Rated" data={topRate} hideSeeAll={true} hideDelete={true}/>
 
                     </ScrollView>
                 )

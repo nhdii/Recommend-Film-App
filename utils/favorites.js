@@ -1,7 +1,6 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../config/firebase';
 
-
 // Function to add a movie to user's favorites list in Firestore
 const addToFavorites = async (userId, movieId) => {
     try {
