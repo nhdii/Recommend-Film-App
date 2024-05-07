@@ -9,12 +9,15 @@ import { styles } from '../theme';
 import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { firestore } from '../config/firebase';
 import useAuth from '../hooks/useAuth';
+import Alert from '../components/alert';
 
 export default function FavoritesScreen() {
     const navigation = useNavigation();
     const { user } = useAuth(); 
     const [favorites, setFavorites] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showAlert, setShowAlert] = useState(false); // State để điều khiển việc hiển thị Alert
+    const [alertMessage, setAlertMessage] = useState(''); // State để lưu thông điệp của Alert
 
     useEffect(() => {
         const fetchFavorites = async () => {
@@ -89,9 +92,18 @@ export default function FavoritesScreen() {
                         navigation={navigation}
                         hideSeeAll={true}
                         hideDelete={false}
+                        setShowAlert={setShowAlert} // Truyền hàm setShowAlert xuống MovieList
+                        setAlertMessage={setAlertMessage} // Truyền hàm setAlertMessage xuống MovieList
                     />
                 </ScrollView>
             )}
+
+            <Alert
+                visible={showAlert}
+                message={alertMessage}
+                onClose={() => setShowAlert(false)}
+                autoCloseTimeout={3000} // Đóng tự động sau 3 giây
+            />
         </View>
     );
 }

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Image, Dimensions, Alert } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, TouchableWithoutFeedback, Image, Dimensions } from 'react-native'
 import React, { useState } from 'react'
 import { styles } from '../theme'
 import { useNavigation } from '@react-navigation/native';
@@ -9,7 +9,7 @@ import { removeFromFavorites } from '../utils/favorites';
 
 var {width, height} = Dimensions.get('window')
 
-export default function MovieList({title, data, hideSeeAll, hideDelete }) {
+export default function MovieList({title, data, hideSeeAll, hideDelete, setShowAlert, setAlertMessage }) {
     const navigation = useNavigation();
     const { user } = useAuth(); 
     const [favorites, setFavorites] = useState([]);
@@ -22,18 +22,9 @@ export default function MovieList({title, data, hideSeeAll, hideDelete }) {
                 const updatedFavorites = favorites.filter(favorite => favorite.id !== movieId);
                 setFavorites(updatedFavorites);
 
-                Alert.alert(
-                    'Success',
-                    'Movie has been removed from favorites.',
-                    [
-                        {
-                            text: 'OK',
-                            onPress: () => console.log('OK Pressed'),
-                            style: 'cancel',
-                        },
-                    ],
-                    { cancelable: false }
-                );
+                // Hiển thị thông báo thành công
+                setAlertMessage('Movie has been removed from favorites.');
+                setShowAlert(true);
             }
         } catch (error) {
             console.error('Error deleting movie from favorites:', error);

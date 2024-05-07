@@ -20,11 +20,11 @@ export default function Alert({ visible, message, onClose, autoCloseTimeout  }){
         animationType="fade"
         onRequestClose={onClose}
       >
-        <View className="flex-1 justify-end items-center">
-          <View className="bg-green-300 p-4 w-full h-auto border rounded-lg">
-            <Text>{message}</Text>
-          </View>
-        </View>
+        <TouchableOpacity className="flex-1 justify-end items-center" onPress={onClose} >
+          <Text className="bg-green-300 p-4 w-full h-17 border rounded-lg">
+            {message}
+          </Text>
+        </TouchableOpacity>
       </Modal>
     );
   };
