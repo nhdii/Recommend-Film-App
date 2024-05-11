@@ -11,8 +11,8 @@ const UserInfo = ({ user }) => {
         <Image source={{ uri: user?.photoURL || '../assets/images/default-avatar.png'}} style={{ borderRadius: 20, height: 96, width: 96 }} />
       </View>
       <View style={{ alignItems: 'left', justifyContent: 'center', marginLeft: 3, marginTop: 2 }}>
-        <Text style={{ color: 'white', fontSize: 14 }}>
-          {user.email || 'Test Name'}
+        <Text style={{ color: 'white', fontSize: 14, marginTop: 10 }}>
+          {user.email}
         </Text>
       </View>
     </TouchableOpacity>

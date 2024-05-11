@@ -90,7 +90,7 @@ export default function HomeScreen(){
     // get data trending movies
     const getTrendingMovies = async () =>{
         const data = await fetchTrendingMovies();
-        // console.log('got trending movies: ', data);
+        // console.log('got trending movies: ', JSON.stringify(data, null, 2));
         if( data && data.results) setTrending(data.results);
         setLoading(false);
     }

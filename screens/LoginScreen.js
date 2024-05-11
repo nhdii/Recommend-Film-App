@@ -120,7 +120,7 @@ export default function LoginScreen() {
                     {/* error message */}
                     <Text className="text-red-700 text-base text-center">{error}</Text>
 
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>{navigation.navigate('ForgotPassword')}}>
                         <Text className="text-right text-white font-semibold">Forgot your password?</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={handleLogin} style={styles.backgroundButton} className="px-4 py-3 rounded-lg mt-6 mb-6">

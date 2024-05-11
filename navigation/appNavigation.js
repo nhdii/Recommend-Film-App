@@ -15,6 +15,7 @@ import useAuth from "../hooks/useAuth";
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
 import UserInfo from '../components/userInfo';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -31,6 +32,8 @@ function HomeNavigation() {
         <Stack.Screen name="EditProfile" component={EditProfileScreen}/>
         <Stack.Screen name="Favorite" component={FavoritesScreen}/>
         <Stack.Screen name="SignUp" component={SignUpScreen}/>
+        <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen}/>
+        
       </Stack.Navigator>
     );
 }
