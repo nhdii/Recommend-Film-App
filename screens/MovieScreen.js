@@ -13,6 +13,7 @@ import Director from '../components/director';
 import useAuth from '../hooks/useAuth';
 import { addToFavorites, removeFromFavorites, checkIsMovieFavorite} from '../utils/favorites';
 import Alert from '../components/alert';
+import Reviews from '../components/review';
 
 var {width, height} = Dimensions.get('window')
 const android = Platform.OS == 'android';
@@ -179,8 +180,11 @@ export default function MovieScreen() {
         {/* cast */}
         {cast.length>0 && <Cast navigation={navigation} cast={cast} />}
         
+        <Reviews movieId={item.id} />
+
         {/* similar movies */}
         {similarMovies.length>0 && <MovieList title="Similar Movies" hideSeeAll={true} data={similarMovies} hideDelete={true}/>}
+
 
         {/* Alert message update succesful */}
         <Alert 
