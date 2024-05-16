@@ -1,5 +1,6 @@
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../config/firebase';
+import { getRecommendedMovies } from '../api/contentBasedAPI';
 
 // Function to add a movie to user's favorites list in Firestore
 const addToFavorites = async (userId, movieId) => {
@@ -11,16 +12,16 @@ const addToFavorites = async (userId, movieId) => {
             if (!favorites.includes(movieId)) {
                 favorites.push(movieId);
                 await updateDoc(userDocRef, { favorites });
-                console.log('Movie added to favorites successfully');
-        
+
+                // Fetch new recommendations
+                const recommendedMovies = await getRecommendedMovies(favorites);
+                console.log('Recommended Movies:', recommendedMovies);
             } else {
                 console.log('Movie is already in favorites');
             }
         } else {
             console.log('User document does not exist');
         }
-        
-
     } catch (error) {
         console.error('Error adding movie to favorites:', error);
         throw error;
@@ -37,15 +38,16 @@ const removeFromFavorites = async (userId, movieId) => {
             if (favorites.includes(movieId)) {
                 const updatedFavorites = favorites.filter(id => id !== movieId);
                 await updateDoc(userDocRef, { favorites: updatedFavorites });
-                console.log('Movie removed from favorites successfully');
 
+                // Fetch new recommendations
+                const recommendedMovies = await getRecommendedMovies(updatedFavorites);
+                console.log('Recommended Movies:', recommendedMovies);
             } else {
                 console.log('Movie is not in favorites');
             }
         } else {
             console.log('User document does not exist');
         }
-
     } catch (error) {
         console.error('Error removing movie from favorites:', error);
         throw error;

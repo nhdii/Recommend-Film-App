@@ -12,10 +12,13 @@ import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies, fetchPop
 import { DrawerActions } from '@react-navigation/native';
 import RecommendMovie from "../components/recommendMovie";
 import useAuth from "../hooks/useAuth";
+import { onSnapshot, doc } from "firebase/firestore";
+import { firestore } from "../config/firebase";
+import { getRecommendedMovies } from '../api/contentBasedAPI';
 
 export default function HomeScreen(){
 
-    const apiRecommendUrl = "http://10.160.1.82:50100/receive-favorites";
+    const apiRecommendUrl = "http://192.168.1.101:50100/api/receive-favorites";
 
     const [recommendedMovies, setRecommendedMovies] = useState([]);
     const [trending, setTrending] = useState([]);
@@ -33,43 +36,90 @@ export default function HomeScreen(){
         getTopRatedMovies();
     },[])
 
-    useEffect(() => {
-        if (user && user.favorites) {
-            getRecommendedMovies();
-        }
-    }, [user]);
+    // useEffect(() => {
+    //     if (user && user.favorites) {
+    //         getRecommendedMovies();
+    //     }
+    // }, [user]);
     
     // get data recommend movies
-    const getRecommendedMovies = async () => {
-        try {
-            const movieNames = await Promise.all(user.favorites.map(async (movieId) => {
-                try {
-                    const movieName = await getMovieNameById(movieId);
-                    return movieName;
-                } catch (error) {
-                    console.error('Error fetching movie name:', error);
-                    return null;
-                }
-            }));
-            // Gửi yêu cầu lấy danh sách movie favorites từ API
-            const favoritesResponse = await axios.post(apiRecommendUrl, {
-                favorites: movieNames.filter(movieName => movieName !== null), 
-            });
+    // const getRecommendedMovies = async () => {
+    //     try {
+    //         const movieNames = await Promise.all(user.favorites.map(async (movieId) => {
+    //             try {
+    //                 const movieName = await getMovieNameById(movieId);
+    //                 return movieName;
+    //             } catch (error) {
+    //                 console.error('Error fetching movie name:', error);
+    //                 return null;
+    //             }
+    //         }));
+    //         // Gửi yêu cầu lấy danh sách movie favorites từ API
+    //         const favoritesResponse = await axios.post(apiRecommendUrl, {
+    //             favorites: movieNames.filter(movieName => movieName !== null), 
+    //         });
 
-            // Nhận dữ liệu recommended movies từ API
-            const data = favoritesResponse.data;
-            console.log("got movie recommend from API: ", movieNames.filter(movieName => movieName !== null),);
-            // Kiểm tra nếu có dữ liệu recommended movies được trả về
-            if (data && data.recommended_movies) {
-                console.log("got movie recommend from API: ", data.recommended_movies);
-                setRecommendedMovies(data.recommended_movies);
-            }
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching recommended movies:', error);
+    //         // Nhận dữ liệu recommended movies từ API
+    //         const data = favoritesResponse.data;
+    //         console.log("got movie recommend from API: ", movieNames.filter(movieName => movieName !== null),);
+    //         // Kiểm tra nếu có dữ liệu recommended movies được trả về
+    //         if (data && data.recommended_movies) {
+    //             console.log("got movie recommend from API: ", data.recommended_movies);
+    //             setRecommendedMovies(data.recommended_movies);
+    //         }
+    //         setLoading(false);
+    //     } catch (error) {
+    //         console.error('Error fetching recommended movies:', error);
+    //         setLoading(false);
+    //     }
+    // };
+
+    // const getRecommendedMovies = async (favorites) => {
+    //     try {
+    //         const movieNames = await Promise.all(favorites.map(async (movieId) => {
+    //             try {
+    //                 const movieName = await getMovieNameById(movieId);
+    //                 return movieName;
+    //             } catch (error) {
+    //                 console.error('Error fetching movie name:', error);
+    //                 return null;
+    //             }
+    //         }));
+    
+    //         const favoritesResponse = await axios.post(apiRecommendUrl, {
+    //             favorites: movieNames.filter(movieName => movieName !== null),
+    //         });
+    
+    //         const data = favoritesResponse.data;
+    //         if (data && data.recommended_movies) {
+    //             return data.recommended_movies;
+    //         }
+    //         return [];
+    //     } catch (error) {
+    //         console.error('Error fetching recommended movies:', error);
+    //         return [];
+    //     }
+    // };
+
+    useEffect(() => {
+        if (user && user.uid) {
+            const userDocRef = doc(firestore, 'users', user.uid);
+            const unsubscribe = onSnapshot(userDocRef, async (docSnap) => {
+                if (docSnap.exists()) {
+                    const favorites = docSnap.data().favorites || [];
+                    const recommendedMovies = await getRecommendedMovies(favorites);
+                    setRecommendedMovies(recommendedMovies);
+                    setLoading(false);
+                } else {
+                    setRecommendedMovies([]);
+                    setLoading(false);
+                }
+            });
+            return () => unsubscribe();
+        } else {
             setLoading(false);
         }
-    };
+    }, [user]);
 
     const getMovieNameById = async (movieId) => {
         try {
