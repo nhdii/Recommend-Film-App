@@ -23,7 +23,7 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
 
                 <View className="flex-1 items-center">
-                    <Text className="text-white text-lg font-bold">
+                    <Text className="text-white text-xl font-bold">
                         Profile
                     </Text>         
                 </View>

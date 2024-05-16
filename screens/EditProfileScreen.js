@@ -62,7 +62,7 @@ export default function EditProfileScreen() {
           <ChevronLeftIcon size="28" strokeWidth={2.5} color="white" className="rounded-xl p-1" />
         </TouchableOpacity>
         <View className="flex-1 items-center pr-8">
-          <Text className="text-white text-lg font-bold">
+          <Text className="text-white text-xl font-bold">
             Edit Profile
           </Text>         
         </View>
