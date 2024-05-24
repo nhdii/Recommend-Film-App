@@ -13,7 +13,7 @@ const topRatedMoviesEndpoint = `${apiBaseUrl}/movie/top_rated?api_key=${apiKey}`
 const searchMoviesEndpoint =`${apiBaseUrl}/search/movie?api_key=${apiKey}`;
 
 //recommend api endpoint
-const recommendationEndpoint = 'http://192.168.111.212:50100/get-recommended-movies';
+const recommendationEndpoint = 'http://192.168.111.210:50100/api/collaborative';
 
 // dynamic endpoint
 const movieDetailsEndpoint = id => `${apiBaseUrl}/movie/${id}?api_key=${apiKey}`;
@@ -23,6 +23,7 @@ const similarMovieEndpoint = id => `${apiBaseUrl}/movie/${id}/similar?api_key=${
 const personDetailsEndpoint = id=> `${apiBaseUrl}/person/${id}?api_key=${apiKey}`;
 const personMoviesEndpoint = id=> `${apiBaseUrl}/person/${id}/movie_credits?api_key=${apiKey}`;
 
+const movieVideosEndpoint = id => `${apiBaseUrl}/movie/${id}/videos?api_key=${apiKey}`;
 
 export const image500 = path => path? `https://image.tmdb.org/t/p/w500${path}` : null;
 export const image342 = path => path? `https://image.tmdb.org/t/p/w342${path}` : null;
@@ -45,6 +46,19 @@ const apiCall = async (endpoint, params)=>{
         return {}
     }
 }
+
+export const fetchCollaborativeFilteringRecommendations = async (userId, ratings) => {
+    try {
+        console.log("Sending ratings to API:", { userId, ratings });  // Debug log
+        const response = await axios.post('http://192.168.1.109:50200/api/collab_filtering', { userId, ratings });
+        console.log("Get response Collab: ", response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching collaborative filtering recommendations:', error);
+        return [];
+    }
+};
+
 
 export const fetchTrendingMovies = ()=>{
     return apiCall(trendingMoviesEndpoint);
@@ -80,6 +94,10 @@ export const fetchPersonDetails = id=>{
 
 export const fetchPersonMovies = id=>{
     return apiCall(personMoviesEndpoint(id));
+}
+
+export const fetchMovieVideos = id => {
+    return apiCall(movieVideosEndpoint(id));
 }
 
 export const searchMovies = params=>{

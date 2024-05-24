@@ -7,7 +7,7 @@ import { styles, theme } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import Cast from '../components/cast';
 import MovieList from '../components/movieList';
-import { fetchMovieCredits, fetchMovieDetails, fetchMovieSimilar, image500 } from '../api/moviedb';
+import { fetchMovieCredits, fetchMovieDetails, fetchMovieSimilar, fetchMovieVideos, image500 } from '../api/moviedb';
 import Loading from '../components/loading';
 import Director from '../components/director';
 import useAuth from '../hooks/useAuth';
@@ -27,6 +27,7 @@ export default function MovieScreen() {
     const [similarMovies, setSimilarMovies] = useState([]);
     const [loading, setLoading] = useState(false);
     const [movie, setMovie]= useState({});
+    const [trailerKey, setTrailerKey] = useState(''); // State to store the trailer key
     const { user } = useAuth(); 
     const [showAlert, setShowAlert] = useState(false); // State to control visibility of custom alert
     const [alertMessage, setAlertMessage] = useState('');
@@ -36,6 +37,8 @@ export default function MovieScreen() {
         getMovieDetails(item.id);
         getMovieCredits(item.id);
         getSimilarMovie(item.id);
+        getMovieTrailer(item.id); // Fetch trailer
+
         const checkIsFavorite = async () => {
             if (user && user.uid) {
                 const isFavorite = await checkIsMovieFavorite(user.uid, item.id);
@@ -72,6 +75,16 @@ export default function MovieScreen() {
         const data = await fetchMovieSimilar(id);
         // console.log('got similar movie: ', data);
         if(data && data.results) setSimilarMovies(data.results);
+    }
+
+    const getMovieTrailer = async id => {
+        const data = await fetchMovieVideos(id);
+        if (data && data.results) {
+            const trailer = data.results.find(video => video.type === 'Trailer' && video.site === 'YouTube');
+            if (trailer) {
+                setTrailerKey(trailer.key);
+            }
+        }
     }
 
      // Hàm xử lý sự kiện nhấn vào biểu tượng yêu thích
@@ -173,6 +186,16 @@ export default function MovieScreen() {
                 {movie?.overview}
             </Text>
         </View>
+
+        {/* {trailerKey ? (
+            <View className="m-4">
+                <YoutubePlayer
+                    height={200}
+                    play={true}
+                    videoId={trailerKey}
+                />
+            </View>
+        ) : null} */}
 
         {/* director  */}
         {director && Object.keys(director).length > 0 && <Director navigation={navigation} director={director}/>}

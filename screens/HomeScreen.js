@@ -1,26 +1,25 @@
-import axios from 'axios';
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { View, Text, SafeAreaView, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, TouchableOpacity, ScrollView, Button } from "react-native";
 import { Bars3CenterLeftIcon, MagnifyingGlassIcon } from "react-native-heroicons/outline";
 import { styles } from "../theme";
 import TrendingMovie from "../components/trendingMovies"
 import MovieList from "../components/movieList";
 import { useNavigation } from "@react-navigation/native";
 import Loading from "../components/loading";
-import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies, fetchPopularMovies, fetchMovieDetails } from "../api/moviedb";
+import { fetchTopRatedMovies, fetchTrendingMovies, fetchUpcomingMovies, fetchPopularMovies, fetchCollaborativeFilteringRecommendations } from "../api/moviedb";
 import { DrawerActions } from '@react-navigation/native';
 import RecommendMovie from "../components/recommendMovie";
 import useAuth from "../hooks/useAuth";
-import { onSnapshot, doc } from "firebase/firestore";
+import { onSnapshot, doc, collection, getDocs, query, where  } from "firebase/firestore";
 import { firestore } from "../config/firebase";
 import { getRecommendedMovies } from '../api/contentBasedAPI';
 
 export default function HomeScreen(){
 
-    const apiRecommendUrl = "http://192.168.1.101:50100/api/receive-favorites";
-
     const [recommendedMovies, setRecommendedMovies] = useState([]);
+    const [collaborativeMovies, setCollaborativeMovies] = useState([]);
+
     const [trending, setTrending] = useState([]);
     const [popular, setPopular] = useState([]);
     const [upcoming, setUpcoming] = useState([]);
@@ -28,6 +27,7 @@ export default function HomeScreen(){
     const navigation = useNavigation();
     const [loading, setLoading] = useState(true);
     const { user } = useAuth(); 
+    const [selectedRecommendationType, setSelectedRecommendationType] = useState('Content Based');
 
     useEffect(()=>{
         getTrendingMovies();
@@ -35,71 +35,6 @@ export default function HomeScreen(){
         getUpcomingMovies();
         getTopRatedMovies();
     },[])
-
-    // useEffect(() => {
-    //     if (user && user.favorites) {
-    //         getRecommendedMovies();
-    //     }
-    // }, [user]);
-    
-    // get data recommend movies
-    // const getRecommendedMovies = async () => {
-    //     try {
-    //         const movieNames = await Promise.all(user.favorites.map(async (movieId) => {
-    //             try {
-    //                 const movieName = await getMovieNameById(movieId);
-    //                 return movieName;
-    //             } catch (error) {
-    //                 console.error('Error fetching movie name:', error);
-    //                 return null;
-    //             }
-    //         }));
-    //         // Gửi yêu cầu lấy danh sách movie favorites từ API
-    //         const favoritesResponse = await axios.post(apiRecommendUrl, {
-    //             favorites: movieNames.filter(movieName => movieName !== null), 
-    //         });
-
-    //         // Nhận dữ liệu recommended movies từ API
-    //         const data = favoritesResponse.data;
-    //         console.log("got movie recommend from API: ", movieNames.filter(movieName => movieName !== null),);
-    //         // Kiểm tra nếu có dữ liệu recommended movies được trả về
-    //         if (data && data.recommended_movies) {
-    //             console.log("got movie recommend from API: ", data.recommended_movies);
-    //             setRecommendedMovies(data.recommended_movies);
-    //         }
-    //         setLoading(false);
-    //     } catch (error) {
-    //         console.error('Error fetching recommended movies:', error);
-    //         setLoading(false);
-    //     }
-    // };
-
-    // const getRecommendedMovies = async (favorites) => {
-    //     try {
-    //         const movieNames = await Promise.all(favorites.map(async (movieId) => {
-    //             try {
-    //                 const movieName = await getMovieNameById(movieId);
-    //                 return movieName;
-    //             } catch (error) {
-    //                 console.error('Error fetching movie name:', error);
-    //                 return null;
-    //             }
-    //         }));
-    
-    //         const favoritesResponse = await axios.post(apiRecommendUrl, {
-    //             favorites: movieNames.filter(movieName => movieName !== null),
-    //         });
-    
-    //         const data = favoritesResponse.data;
-    //         if (data && data.recommended_movies) {
-    //             return data.recommended_movies;
-    //         }
-    //         return [];
-    //     } catch (error) {
-    //         console.error('Error fetching recommended movies:', error);
-    //         return [];
-    //     }
-    // };
 
     useEffect(() => {
         if (user && user.uid) {
@@ -109,33 +44,55 @@ export default function HomeScreen(){
                     const favorites = docSnap.data().favorites || [];
                     const recommendedMovies = await getRecommendedMovies(favorites);
                     setRecommendedMovies(recommendedMovies);
+                    fetchUserRatings(user.uid);
                     setLoading(false);
                 } else {
                     setRecommendedMovies([]);
                     setLoading(false);
                 }
             });
-            return () => unsubscribe();
+
+            const reviewsQuery = query(collection(firestore, 'reviews'), where('userId', '==', user.uid));
+            const reviewsUnsubscribe = onSnapshot(reviewsQuery, async (querySnapshot) => {
+                const ratings = querySnapshot.docs.map(doc => ({
+                    movieId: doc.data().movieId,
+                    rating: doc.data().rating
+                }));
+                if (ratings.length > 0) {
+                    const collabMovies = await fetchCollaborativeFilteringRecommendations(user.uid, ratings);
+                    setCollaborativeMovies(collabMovies.recommendations);  // Update here
+                } else {
+                    setCollaborativeMovies([]);
+                }
+            });
+
+            return () => {
+                unsubscribe();
+                reviewsUnsubscribe();
+            };
         } else {
             setLoading(false);
         }
     }, [user]);
 
-    const getMovieNameById = async (movieId) => {
-        try {
-            const movieDetails = await fetchMovieDetails(movieId);
-            
-            if (movieDetails) {
-                return movieDetails.title;
-            } else {
-                return null;
-            }
-        } catch (error) {
-            console.error('Error fetching movie details:', error);
-            throw error;
+    const fetchUserRatings = async (userId) => {
+        const q = query(collection(firestore, 'reviews'), where('userId', '==', userId));
+        const querySnapshot = await getDocs(q);
+        const ratings = querySnapshot.docs.map(doc => ({
+            movieId: doc.data().movieId,
+            rating: doc.data().rating
+        }));
+
+        // Send the ratings to the collaborative filtering API
+        if (ratings.length > 0) {
+            const collabMovies = await fetchCollaborativeFilteringRecommendations(userId, ratings);
+            setCollaborativeMovies(collabMovies.recommendations);  // Update here
+        } else {
+            setCollaborativeMovies([]);
         }
+
+        setLoading(false);
     };
-    
 
     // get data trending movies
     const getTrendingMovies = async () =>{
@@ -167,6 +124,11 @@ export default function HomeScreen(){
         if( data && data.results) setTopRate(data.results);
     }
 
+    const handleRecommendationTypeChange = (type) => {
+        setSelectedRecommendationType(type);
+    };
+
+
     return (
         <View className="flex-1 bg-neutral-800">
             {/* Search bar and Logo */}
@@ -195,8 +157,33 @@ export default function HomeScreen(){
                         contentContainerStyle={{paddingBottom: 10}} 
                     >
 
-                        {/* <RecommendMovie data={recommendedMovies}/> */}
-                        {recommendedMovies.length>0 && <RecommendMovie data={recommendedMovies}/>}
+                        {/* Recommendation Type Selection */}
+                        <View className="flex-row justify-around mt-4 mb-2">
+                            <Button
+                                title="Content Based"
+                                onPress={() => handleRecommendationTypeChange('Content Based')}
+                                color={selectedRecommendationType === 'Content Based' ? '#1E90FF' : '#fff'}
+                            />
+                            <Button
+                                title="Collaborative"
+                                onPress={() => handleRecommendationTypeChange('Collaborative')}
+                                color={selectedRecommendationType === 'Collaborative' ? '#1E90FF' : '#fff'}
+                            />
+                        </View>
+
+                        {/* Render Recommended Movies Based on Selection */}
+                        {selectedRecommendationType === 'Content Based' && recommendedMovies.length > 0 && (
+                            <RecommendMovie data={recommendedMovies} title="Content Based" />
+                        )}
+
+                        {selectedRecommendationType === 'Collaborative' && collaborativeMovies.length > 0 && (
+                            <RecommendMovie data={collaborativeMovies} title="Collaborative Filtering" />
+                        )}
+
+                        {/* {recommendedMovies.length>0 && <RecommendMovie data={recommendedMovies} title="Content Based" />}
+                        
+                        {collaborativeMovies.length > 0 && <RecommendMovie data={collaborativeMovies} title="Collaborative Filtering" />} */}
+
                         {/* Trending Movie */}
                         {trending.length>0 && <TrendingMovie data={trending} />}
 

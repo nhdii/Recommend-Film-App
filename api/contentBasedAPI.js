@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { fetchMovieDetails } from './moviedb';
 
-const apiRecommendUrl = "http://192.168.1.101:50100/api/receive-favorites";
+const apiContentBasedUrl = "http://10.160.1.208:50100/api/receive-favorites";
 
 const getRecommendedMovies = async (favorites) => {
     try {
@@ -15,7 +15,7 @@ const getRecommendedMovies = async (favorites) => {
             }
         }));
 
-        const favoritesResponse = await axios.post(apiRecommendUrl, {
+        const favoritesResponse = await axios.post(apiContentBasedUrl, {
             favorites: movieNames.filter(movieName => movieName !== null),
         });
 
@@ -25,7 +25,7 @@ const getRecommendedMovies = async (favorites) => {
         }
         return [];
     } catch (error) {
-        console.error('Error fetching recommended movies:', error);
+        console.error('Error fetching content based recommended movies:', error);
         return [];
     }
 };

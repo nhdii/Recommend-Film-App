@@ -6,14 +6,15 @@ import { image500 } from '../api/moviedb';
 
 const { width, height } = Dimensions.get('window');
 
-const RecommendMovie = ({ data }) => {
+const RecommendMovie = ({ data, title }) => {
     const navigation = useNavigation();
     const handleClick = (item)=>{
         navigation.navigate('Movie', item);
     }
+    
   return (
     <View>
-      <Text className="text-white text-xl mx-4 mb-5 mt-5">Recommend</Text>
+      <Text className="text-white text-xl mx-4 mb-5 mt-5">{title}</Text>
       <Carousel 
         data={data} 
         renderItem={({item})=> <MovieCart item={item} handleClick={handleClick}/>}
@@ -28,6 +29,7 @@ const RecommendMovie = ({ data }) => {
 };
 
 const MovieCart = ({item, handleClick})=> {
+
     return (
       <TouchableWithoutFeedback onPress={()=> handleClick(item)}>
         <Image 
